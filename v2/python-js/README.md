@@ -1,7 +1,7 @@
-Compilot widget integration example : Python Backend and javascript frontend in regular mode. 
+ComPilot widget integration example : Python Backend and javascript frontend in regular mode. 
 ===========================================================
 
-This example demonstrates how to build a Python backend API and a JavaScript frontend for the Compilot Widget in regular mode, which can be applied to KYC (Know Your Customer) and KYB (Know Your Business) processes. In this implementation, no SDK is used. Instead, we used the OpenAPI generator (https://github.com/openapi-generators/openapi-python-client) to generate the identity-api-client codegen folder.
+This example demonstrates how to build a Python backend API and a JavaScript frontend for the ComPilot Widget in regular mode, which can be applied to KYC (Know Your Customer) and KYB (Know Your Business) processes. In this implementation, no SDK is used. Instead, we used the OpenAPI generator (https://github.com/openapi-generators/openapi-python-client) to generate the identity-api-client codegen folder.
 
 The regular mode backend example requires a customer ID as an environment variable to illustrate the integration. However, in a real-world scenario, a unique customer ID should be passed as a parameter when initiating KYC/KYB verification.
 
@@ -9,9 +9,9 @@ The regular mode backend example requires a customer ID as an environment variab
 ## pre-requisite :
 
 To run this example dApp, you need:
-	•	Access to the Compilot dashboard with an API key.
+	•	Access to the ComPilot dashboard with an API key.
 	•	A workflow set up in your workspace.
-	•	User authentication before opening a Compilot session, with a unique ID for this user (such as an email address or another ID).
+	•	User authentication before opening a ComPilot session, with a unique ID for this user (such as an email address or another ID).
    .   Python 3.x
    .   pip
    .   virtualenv (recommended)
@@ -50,7 +50,7 @@ To run this example dApp, you need:
 
 6. install depencies
    ~~~~
-   npm i @nexeraid/web-sdk 
+   npm i @compilot/web-sdk 
    ~~~~
 
 
@@ -79,9 +79,9 @@ npm run dev
 ## For more details, visit : 
 
 SDKs documentation : https://docs.compilot.ai/developing/sdk/
-NexeraID KYC/KYB documentation : https://docs.compilot.ai/usescases/
-NexeraID technical documentation :   https://docs.compilot.ai/developing
+ComPilot KYC/KYB documentation : https://docs.compilot.ai/usescases/
+ComPilot technical documentation :   https://docs.compilot.ai/developing
 
 ## Credits :
 
-This is a [Compilot] (https://compilot.ai) project
+This is a [ComPilot] (https://compilot.ai) project

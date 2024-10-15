@@ -1,5 +1,5 @@
 {
-  "name": "example-next-rainbowkit-w3",
+  "name": "example-ComPilot-next-rainbowkit-w3",
   "private": true,
   "version": "0.1.0",
   "scripts": {
@@ -8,9 +8,9 @@
     "start": "next start"
   },
   "dependencies": {
-    "@nexeraid/js-sdk": "^2.0.28-dev",
-    "@nexeraid/react-sdk": "^2.0.34-dev",
-    "@nexeraid/react-sdk-wallet-wagmi": "^2.0.4-dev",
+    "@compilot/js-sdk": "^2.1.12",
+    "@compilot/react-sdk": "^2.1.12",
+    "@compilot/web-sdk-wallet-wagmi": "^2.1.10",
     "@rainbow-me/rainbowkit": "^2.1.5",
     "@tanstack/react-query": "^5.51.11",
     "next": "^14.2.3",

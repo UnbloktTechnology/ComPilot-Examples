@@ -1,11 +1,11 @@
 import React from "react";
-import { AirdropLayout } from "@/kyc-airdrop/ui/AirdropLayout";
+import { AirdropLayout } from "@/ui/AirdropLayout";
 import { useRouter } from "next/router";
-import { Button } from "@/kyc-airdrop/ui/components/Button";
+import { Button } from "@/ui/components/Button";
 
-import { useRedirectToCheckWallet } from "@/kyc-airdrop/lib/navigation";
-import { useWalletAddress } from "@/kyc-airdrop/lib/useWalletAddress";
-import { LogoutButton } from "@/kyc-airdrop/ui/components/LogoutButton";
+import { useRedirectToCheckWallet } from "@/lib/navigation";
+import { useWalletAddress } from "@/lib/useWalletAddress";
+import { LogoutButton } from "@/ui/components/LogoutButton";
 
 export default function AllocationCheck() {
   const router = useRouter();

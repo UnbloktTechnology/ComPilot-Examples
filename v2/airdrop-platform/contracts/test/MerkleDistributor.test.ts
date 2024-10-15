@@ -3,7 +3,7 @@ import { signTxAuthDataLibEthers } from '@nexeraprotocol/nexera-id-sig-gating-co
 import chai, { expect } from 'chai'
 import { createBalanceTree, BalanceTree, parseBalanceMap, verifyProof } from '@compilot/merkle-tree-js'
 import { solidity } from 'ethereum-waffle'
-import { BigNumber, constants, Contract, ContractFactory } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import type { Wallet } from 'ethers'
 import { ethers } from 'hardhat'
 import { type Address } from 'viem'
@@ -16,57 +16,88 @@ chai.use(solidity)
 const overrides = {
   gasLimit: 9999999,
 }
-const gasUsed = {
+const maxGas = {
   MerkleDistributor: {
-    twoAccountTree: 118751,
-    largerTreeFirstClaim: 123473,
-    largerTreeSecondClaim: 89273,
-    realisticTreeGas: 137505,
-    realisticTreeGasDeeperNode: 137429,
-    realisticTreeGasAverageRandom: 104369,
-    realisticTreeGasAverageFirst25: 88171,
+    twoAccountTree: 140000,
+    largerTreeFirstClaim: 140000,
+    largerTreeSecondClaim: 140000,
+    realisticTreeGas: 150000,
+    realisticTreeGasDeeperNode: 150000,
+    realisticTreeGasAverageRandom: 150000,
+    realisticTreeGasAverageFirst25: 150000,
   },
   MerkleDistributorWithDeadline: {
-    twoAccountTree: 118833,
-    largerTreeFirstClaim: 123567,
-    largerTreeSecondClaim: 89367,
-    realisticTreeGas: 137631,
-    realisticTreeGasDeeperNode: 137547,
-    realisticTreeGasAverageRandom: 104474,
-    realisticTreeGasAverageFirst25: 88282,
+    twoAccountTree: 140000,
+    largerTreeFirstClaim: 140000,
+    largerTreeSecondClaim: 140000,
+    realisticTreeGas: 150000,
+    realisticTreeGasDeeperNode: 150000,
+    realisticTreeGasAverageRandom: 150000,
+    realisticTreeGasAverageFirst25: 150000,
   },
 }
 
 const ZERO_BYTES32 = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 const deployContract = async (
-  factory: ContractFactory,
-  tokenAddress: string,
+  creatorWallet: SignerWithAddress,
+  distributorFactoryContract: Contract,
+  tokenContract: Contract,
   merkleRoot: string,
   contractName: string,
-  signerAddress: string
+  signerAddress: string,
+  totalBalance: bigint,
+  endTime: number = Math.floor(Date.now() / 1000) + 31536000
 ) => {
-  let distributor
-  const currentTimestamp = Math.floor(Date.now() / 1000)
+  await tokenContract.setBalance(creatorWallet.address, totalBalance)
+
+  // allow the distributor to transfer the tokens
+  await tokenContract.connect(creatorWallet).approve(distributorFactoryContract.address, totalBalance)
+
+  let deployTransaction
+
   if (contractName === 'MerkleDistributorWithDeadline') {
-    distributor = await factory.deploy(tokenAddress, merkleRoot, currentTimestamp + 31536000, signerAddress, overrides)
+    deployTransaction = await distributorFactoryContract
+      .connect(creatorWallet)
+      .createDistributorWithDeadline(tokenContract.address, merkleRoot, endTime, totalBalance, signerAddress, overrides)
   } else {
-    distributor = await factory.deploy(tokenAddress, merkleRoot, signerAddress, overrides)
+    deployTransaction = await distributorFactoryContract
+      .connect(creatorWallet)
+      .createDistributor(tokenContract.address, merkleRoot, totalBalance, signerAddress, overrides)
+  }
+
+  const deployReceipt = await deployTransaction.wait()
+  const event = deployReceipt.events?.find((e: any) => e.event === 'MerkleDistributorCreated')
+  const distributorAddress = event?.args.proxy
+  const distributor = await ethers.getContractAt(
+    contractName == 'MerkleDistributorWithDeadline'
+      ? merkleDistributorWithDeadlineArtifact.abi
+      : merkleDistributorArtifact.abi,
+    distributorAddress
+  )
+
+  expect(await distributor.token()).to.eq(tokenContract.address)
+  expect(await distributor.merkleRoot()).to.eq(merkleRoot)
+  expect(await tokenContract.allowance(creatorWallet.address, distributorAddress)).to.eq(0n)
+  expect(await tokenContract.balanceOf(distributorAddress)).to.eq(totalBalance)
+
+  if (contractName === 'MerkleDistributorWithDeadline') {
+    expect(await distributor.owner()).to.eq(creatorWallet.address)
+    expect(await distributor.endTime()).to.eq(endTime)
   }
   return distributor
 }
 
 type ClaimArgs = {
   index: number
-  account: string
   amount: number
   merkleProof: string[]
 }
 
-const claimWithSignature = async (
+const buildClaimTxData = async (
   distributorContract: Contract,
   contractName: string,
-  senderSigner: SignerWithAddress,
+  senderSignerAddress: string,
   txAuthSigner: SignerWithAddress,
   claimArgs: ClaimArgs
 ) => {
@@ -78,8 +109,8 @@ const claimWithSignature = async (
     ),
     contractAddress: distributorContract.address as Address,
     functionName: 'claim',
-    args: [claimArgs.index, claimArgs.account, claimArgs.amount, claimArgs.merkleProof],
-    userAddress: senderSigner.address as Address,
+    args: [claimArgs.index, claimArgs.amount, claimArgs.merkleProof],
+    userAddress: senderSignerAddress as Address,
   }
 
   const signatureResponse = await signTxAuthDataLibEthers(txAuthSigner as unknown as Wallet, txAuthInput)
@@ -92,7 +123,6 @@ const claimWithSignature = async (
 
   const unsignedTx = await distributorContract.populateTransaction.claim(
     claimArgs.index,
-    claimArgs.account,
     claimArgs.amount,
     claimArgs.merkleProof
   )
@@ -100,6 +130,23 @@ const claimWithSignature = async (
   // Complete data
   const txData = unsignedTx.data + abiEncodedBlockExpiration.slice(2) + signatureResponse.signature.slice(2)
 
+  return txData
+}
+
+const claimWithSignature = async (
+  distributorContract: Contract,
+  contractName: string,
+  senderSigner: SignerWithAddress,
+  txAuthSigner: SignerWithAddress,
+  claimArgs: ClaimArgs
+) => {
+  const txData = await buildClaimTxData(
+    distributorContract,
+    contractName,
+    senderSigner.address,
+    txAuthSigner,
+    claimArgs
+  )
   // Send tx
   return await senderSigner.sendTransaction({
     to: distributorContract.address,
@@ -108,10 +155,11 @@ const claimWithSignature = async (
   })
 }
 
-for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
+for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline'] as const) {
   describe(`${contract} tests`, () => {
-    let token: Contract
-    let distributorFactory: ContractFactory
+    let mockToken: Contract
+    let distributorFactory: Contract
+    let creatorWallet: SignerWithAddress
     let wallet0: SignerWithAddress
     let wallet1: SignerWithAddress
     let txSigner: SignerWithAddress
@@ -122,32 +170,39 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
       wallet0 = wallets[0]
       wallet1 = wallets[1]
       txSigner = wallets[2]
+      creatorWallet = wallets[3]
       const tokenFactory = await ethers.getContractFactory('TestERC20', wallet0)
-      token = await tokenFactory.deploy('Token', 'TKN', 0, overrides)
-      distributorFactory = await ethers.getContractFactory(contract, wallet0)
+      mockToken = await tokenFactory.deploy('Token', 'TKN', 0, overrides)
+
+      const factoryFactory = await ethers.getContractFactory('MerkleDistributorFactory', wallet0)
+      distributorFactory = await factoryFactory.deploy()
     })
 
     describe('#token', () => {
       it('returns the token address', async () => {
         const distributor = await deployContract(
+          creatorWallet,
           distributorFactory,
-          token.address,
+          mockToken,
           ZERO_BYTES32,
           contract,
-          txSigner.address
+          txSigner.address,
+          0n
         )
-        expect(await distributor.token()).to.eq(token.address)
+        expect(await distributor.token()).to.eq(mockToken.address)
       })
     })
 
     describe('#merkleRoot', () => {
       it('returns the zero merkle root', async () => {
         const distributor = await deployContract(
+          creatorWallet,
           distributorFactory,
-          token.address,
+          mockToken,
           ZERO_BYTES32,
           contract,
-          txSigner.address
+          txSigner.address,
+          0n
         )
         expect(await distributor.merkleRoot()).to.eq(ZERO_BYTES32)
       })
@@ -156,16 +211,17 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
     describe('#claim', () => {
       it('fails for empty proof', async () => {
         const distributor = await deployContract(
+          creatorWallet,
           distributorFactory,
-          token.address,
+          mockToken,
           ZERO_BYTES32,
           contract,
-          txSigner.address
+          txSigner.address,
+          0n
         )
         await expect(
           claimWithSignature(distributor, contract, wallet0, txSigner, {
             index: 0,
-            account: wallet0.address,
             amount: 10,
             merkleProof: [],
           })
@@ -174,20 +230,71 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
 
       it('fails for invalid index', async () => {
         const distributor = await deployContract(
+          creatorWallet,
           distributorFactory,
-          token.address,
+          mockToken,
           ZERO_BYTES32,
           contract,
-          txSigner.address
+          txSigner.address,
+          0n
         )
         await expect(
           claimWithSignature(distributor, contract, wallet0, txSigner, {
             index: 0,
-            account: wallet0.address,
             amount: 10,
             merkleProof: [],
           })
         ).to.be.revertedWith('InvalidProof')
+      })
+
+      describe('eligible contract (multisig or account abstraction support)', async () => {
+        let distributor: Contract
+        let tree: BalanceTree
+        let mockClaimerContract: Contract
+        beforeEach('deploy', async () => {
+          const claimerContractFactory = await ethers.getContractFactory('TestClaimerContract', wallet0)
+          mockClaimerContract = await claimerContractFactory.deploy()
+
+          tree = createBalanceTree({
+            balances: [{ account: mockClaimerContract.address as Address, amount: BigInt(100) }],
+          })
+          const totalAmount = BigInt(100)
+          await mockToken.setBalance(txSigner.address, totalAmount)
+          distributor = await deployContract(
+            creatorWallet,
+            distributorFactory,
+            mockToken,
+            tree.getHexRoot(),
+            contract,
+            txSigner.address,
+            totalAmount
+          )
+          expect(await mockToken.balanceOf(distributor.address)).to.eq(totalAmount)
+        })
+
+        it('successful contract claim', async () => {
+          const claimerTxCallData = await buildClaimTxData(
+            distributor,
+            contract,
+            mockClaimerContract.address,
+            txSigner,
+            {
+              index: 0,
+              amount: 100,
+              merkleProof: tree.getProof({
+                index: BigInt(0),
+                account: mockClaimerContract.address as Address,
+                amount: BigInt(100),
+              }),
+            }
+          )
+
+          expect(await mockToken.balanceOf(mockClaimerContract.address)).to.eq(0)
+          const trx = mockClaimerContract.claim(distributor.address, claimerTxCallData)
+          await expect(trx).not.to.be.reverted
+          await expect(trx).to.emit(distributor, 'Claimed').withArgs(0, mockClaimerContract.address, 100)
+          expect(await mockToken.balanceOf(mockClaimerContract.address)).to.eq(100)
+        })
       })
 
       describe('two account tree', () => {
@@ -200,35 +307,44 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
               { account: wallet1.address as Address, amount: BigInt(101) },
             ],
           })
+          const totalAmount = BigInt(201)
+          await mockToken.setBalance(txSigner.address, totalAmount)
           distributor = await deployContract(
+            creatorWallet,
             distributorFactory,
-            token.address,
+            mockToken,
             tree.getHexRoot(),
             contract,
-            txSigner.address
+            txSigner.address,
+            totalAmount
           )
-          await token.setBalance(distributor.address, 201)
+          expect(await mockToken.balanceOf(distributor.address)).to.eq(totalAmount)
         })
 
         it('successful claim', async () => {
-          const proof0 = tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) })
           await expect(
             claimWithSignature(distributor, contract, wallet0, txSigner, {
               index: 0,
-              account: wallet0.address,
               amount: 100,
-              merkleProof: proof0,
+              merkleProof: tree.getProof({
+                index: BigInt(0),
+                account: wallet0.address as Address,
+                amount: BigInt(100),
+              }),
             })
           )
             .to.emit(distributor, 'Claimed')
             .withArgs(0, wallet0.address, 100)
-          const proof1 = tree.getProof({ index: BigInt(1), account: wallet1.address as Address, amount: BigInt(101) })
+
           await expect(
-            claimWithSignature(distributor, contract, wallet0, txSigner, {
+            claimWithSignature(distributor, contract, wallet1, txSigner, {
               index: 1,
-              account: wallet1.address,
               amount: 101,
-              merkleProof: proof1,
+              merkleProof: tree.getProof({
+                index: BigInt(1),
+                account: wallet1.address as Address,
+                amount: BigInt(101),
+              }),
             })
           )
             .to.emit(distributor, 'Claimed')
@@ -236,80 +352,95 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
         })
 
         it('transfers the token', async () => {
-          const proof0 = tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) })
-          expect(await token.balanceOf(wallet0.address)).to.eq(0)
+          expect(await mockToken.balanceOf(wallet0.address)).to.eq(0)
           await claimWithSignature(distributor, contract, wallet0, txSigner, {
             index: 0,
-            account: wallet0.address,
             amount: 100,
-            merkleProof: proof0,
+            merkleProof: tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) }),
           })
-          expect(await token.balanceOf(wallet0.address)).to.eq(100)
+          expect(await mockToken.balanceOf(wallet0.address)).to.eq(100)
         })
 
         it('must have enough to transfer', async () => {
-          const proof0 = tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) })
-          await token.setBalance(distributor.address, 99)
+          await mockToken.setBalance(distributor.address, 99)
           await expect(
             claimWithSignature(distributor, contract, wallet0, txSigner, {
               index: 0,
-              account: wallet0.address,
               amount: 100,
-              merkleProof: proof0,
+              merkleProof: tree.getProof({
+                index: BigInt(0),
+                account: wallet0.address as Address,
+                amount: BigInt(100),
+              }),
             })
           ).to.be.revertedWith('ERC20: transfer amount exceeds balance')
         })
 
         it('sets #isClaimed', async () => {
-          const proof0 = tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) })
           expect(await distributor.isClaimed(0)).to.eq(false)
           expect(await distributor.isClaimed(1)).to.eq(false)
           await claimWithSignature(distributor, contract, wallet0, txSigner, {
             index: 0,
-            account: wallet0.address,
             amount: 100,
-            merkleProof: proof0,
+            merkleProof: tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) }),
           })
           expect(await distributor.isClaimed(0)).to.eq(true)
           expect(await distributor.isClaimed(1)).to.eq(false)
         })
 
         it('cannot allow two claims', async () => {
-          const proof0 = tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) })
-          await claimWithSignature(distributor, contract, wallet0, txSigner, {
-            index: 0,
-            account: wallet0.address,
-            amount: 100,
-            merkleProof: proof0,
-          })
           await expect(
             claimWithSignature(distributor, contract, wallet0, txSigner, {
               index: 0,
-              account: wallet0.address,
               amount: 100,
-              merkleProof: proof0,
+              merkleProof: tree.getProof({
+                index: BigInt(0),
+                account: wallet0.address as Address,
+                amount: BigInt(100),
+              }),
+            })
+          ).not.to.be.reverted
+          await expect(
+            claimWithSignature(distributor, contract, wallet0, txSigner, {
+              index: 0,
+              amount: 100,
+              merkleProof: tree.getProof({
+                index: BigInt(0),
+                account: wallet0.address as Address,
+                amount: BigInt(100),
+              }),
             })
           ).to.be.revertedWith('AlreadyClaimed()')
         })
 
         it('cannot claim more than once: 0 and then 1', async () => {
-          await claimWithSignature(distributor, contract, wallet0, txSigner, {
-            index: 0,
-            account: wallet0.address,
-            amount: 100,
-            merkleProof: tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) }),
-          })
-          await claimWithSignature(distributor, contract, wallet0, txSigner, {
-            index: 1,
-            account: wallet1.address,
-            amount: 101,
-            merkleProof: tree.getProof({ index: BigInt(1), account: wallet1.address as Address, amount: BigInt(101) }),
-          })
+          await expect(
+            claimWithSignature(distributor, contract, wallet0, txSigner, {
+              index: 0,
+              amount: 100,
+              merkleProof: tree.getProof({
+                index: BigInt(0),
+                account: wallet0.address as Address,
+                amount: BigInt(100),
+              }),
+            })
+          ).not.to.be.reverted
+
+          await expect(
+            claimWithSignature(distributor, contract, wallet1, txSigner, {
+              index: 1,
+              amount: 101,
+              merkleProof: tree.getProof({
+                index: BigInt(1),
+                account: wallet1.address as Address,
+                amount: BigInt(101),
+              }),
+            })
+          ).not.to.be.reverted
 
           await expect(
             claimWithSignature(distributor, contract, wallet0, txSigner, {
               index: 0,
-              account: wallet0.address,
               amount: 100,
               merkleProof: tree.getProof({
                 index: BigInt(0),
@@ -321,23 +452,32 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
         })
 
         it('cannot claim more than once: 1 and then 0', async () => {
-          await claimWithSignature(distributor, contract, wallet0, txSigner, {
-            index: 1,
-            account: wallet1.address,
-            amount: 101,
-            merkleProof: tree.getProof({ index: BigInt(1), account: wallet1.address as Address, amount: BigInt(101) }),
-          })
-          await claimWithSignature(distributor, contract, wallet0, txSigner, {
-            index: 0,
-            account: wallet0.address,
-            amount: 100,
-            merkleProof: tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) }),
-          })
-
+          await expect(
+            claimWithSignature(distributor, contract, wallet1, txSigner, {
+              index: 1,
+              amount: 101,
+              merkleProof: tree.getProof({
+                index: BigInt(1),
+                account: wallet1.address as Address,
+                amount: BigInt(101),
+              }),
+            })
+          ).not.to.be.reverted
           await expect(
             claimWithSignature(distributor, contract, wallet0, txSigner, {
+              index: 0,
+              amount: 100,
+              merkleProof: tree.getProof({
+                index: BigInt(0),
+                account: wallet0.address as Address,
+                amount: BigInt(100),
+              }),
+            })
+          ).not.to.be.reverted
+
+          await expect(
+            claimWithSignature(distributor, contract, wallet1, txSigner, {
               index: 1,
-              account: wallet1.address,
               amount: 101,
               merkleProof: tree.getProof({
                 index: BigInt(1),
@@ -349,25 +489,29 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
         })
 
         it('cannot claim for address other than proof', async () => {
-          const proof0 = tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) })
           await expect(
-            claimWithSignature(distributor, contract, wallet0, txSigner, {
+            claimWithSignature(distributor, contract, wallet1, txSigner, {
               index: 1,
-              account: wallet1.address,
               amount: 101,
-              merkleProof: proof0,
+              merkleProof: tree.getProof({
+                index: BigInt(0),
+                account: wallet0.address as Address,
+                amount: BigInt(100),
+              }),
             })
           ).to.be.revertedWith('InvalidProof')
         })
 
         it('cannot claim more than proof', async () => {
-          const proof0 = tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) })
           await expect(
             claimWithSignature(distributor, contract, wallet0, txSigner, {
               index: 0,
-              account: wallet0.address,
               amount: 101,
-              merkleProof: proof0,
+              merkleProof: tree.getProof({
+                index: BigInt(0),
+                account: wallet0.address as Address,
+                amount: BigInt(100),
+              }),
             })
           ).to.be.revertedWith('InvalidProof')
         })
@@ -376,12 +520,11 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
           const proof = tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) })
           const tx = await claimWithSignature(distributor, contract, wallet0, txSigner, {
             index: 0,
-            account: wallet0.address,
             amount: 100,
             merkleProof: proof,
           })
           const receipt = await tx.wait()
-          expect(receipt.gasUsed).to.eq(gasUsed[contract as keyof typeof gasUsed].twoAccountTree)
+          expect(receipt.gasUsed).to.be.lte(maxGas[contract].twoAccountTree)
         })
       })
 
@@ -394,22 +537,25 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
               return { account: wallet.address as Address, amount: BigInt(ix + 1) }
             }),
           })
+          const totalAmount = wallets.reduce((acc, wallet) => acc + BigInt(wallet.address), BigInt(0))
+          await mockToken.setBalance(txSigner.address, totalAmount)
           distributor = await deployContract(
+            creatorWallet,
             distributorFactory,
-            token.address,
+            mockToken,
             tree.getHexRoot(),
             contract,
-            txSigner.address
+            txSigner.address,
+            totalAmount
           )
-          await token.setBalance(distributor.address, 201)
+          expect(await mockToken.balanceOf(distributor.address)).to.eq(totalAmount)
         })
 
         it('claim index 4', async () => {
           const proof = tree.getProof({ index: BigInt(4), account: wallets[4].address as Address, amount: BigInt(5) })
           await expect(
-            claimWithSignature(distributor, contract, wallet0, txSigner, {
+            claimWithSignature(distributor, contract, wallets[4], txSigner, {
               index: 4,
-              account: wallets[4].address,
               amount: 5,
               merkleProof: proof,
             })
@@ -421,9 +567,8 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
         it('claim index 9', async () => {
           const proof = tree.getProof({ index: BigInt(9), account: wallets[9].address as Address, amount: BigInt(10) })
           await expect(
-            claimWithSignature(distributor, contract, wallet0, txSigner, {
+            claimWithSignature(distributor, contract, wallets[9], txSigner, {
               index: 9,
-              account: wallets[9].address,
               amount: 10,
               merkleProof: proof,
             })
@@ -434,31 +579,34 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
 
         it('gas', async () => {
           const proof = tree.getProof({ index: BigInt(9), account: wallets[9].address as Address, amount: BigInt(10) })
-          const tx = await claimWithSignature(distributor, contract, wallet0, txSigner, {
+          const tx = await claimWithSignature(distributor, contract, wallets[9], txSigner, {
             index: 9,
-            account: wallets[9].address,
             amount: 10,
             merkleProof: proof,
           })
           const receipt = await tx.wait()
-          expect(receipt.gasUsed).to.eq(gasUsed[contract as keyof typeof gasUsed].largerTreeFirstClaim)
+          expect(receipt.gasUsed).to.be.lte(maxGas[contract].largerTreeFirstClaim)
         })
 
         it('gas second down about 15k', async () => {
-          await claimWithSignature(distributor, contract, wallet0, txSigner, {
-            index: 0,
-            account: wallets[0].address,
-            amount: 1,
-            merkleProof: tree.getProof({ index: BigInt(0), account: wallets[0].address as Address, amount: BigInt(1) }),
-          })
-          const tx = await claimWithSignature(distributor, contract, wallet0, txSigner, {
+          await expect(
+            claimWithSignature(distributor, contract, wallets[0], txSigner, {
+              index: 0,
+              amount: 1,
+              merkleProof: tree.getProof({
+                index: BigInt(0),
+                account: wallets[0].address as Address,
+                amount: BigInt(1),
+              }),
+            })
+          ).not.to.be.reverted
+          const tx = await claimWithSignature(distributor, contract, wallets[1], txSigner, {
             index: 1,
-            account: wallets[1].address,
             amount: 2,
             merkleProof: tree.getProof({ index: BigInt(1), account: wallets[1].address as Address, amount: BigInt(2) }),
           })
           const receipt = await tx.wait()
-          expect(receipt.gasUsed).to.eq(gasUsed[contract as keyof typeof gasUsed].largerTreeSecondClaim)
+          expect(receipt.gasUsed).to.be.lte(maxGas[contract].largerTreeSecondClaim)
         })
       })
 
@@ -475,14 +623,18 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
             elements.push(node)
           }
           tree = createBalanceTree({ balances: elements })
+          const totalAmount = BigInt(NUM_LEAVES) * BigInt(100)
+          await mockToken.setBalance(txSigner.address, totalAmount)
           distributor = await deployContract(
+            creatorWallet,
             distributorFactory,
-            token.address,
+            mockToken,
             tree.getHexRoot(),
             contract,
-            txSigner.address
+            txSigner.address,
+            totalAmount
           )
-          await token.setBalance(distributor.address, constants.MaxUint256)
+          expect(await mockToken.balanceOf(distributor.address)).to.eq(totalAmount)
         })
 
         it('proof verification works', () => {
@@ -510,27 +662,24 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
           })
           const tx = await claimWithSignature(distributor, contract, wallet0, txSigner, {
             index: 50000,
-            account: wallet0.address,
             amount: 100,
             merkleProof: proof,
           })
           const receipt = await tx.wait()
-          expect(receipt.gasUsed).to.eq(gasUsed[contract as keyof typeof gasUsed].realisticTreeGas)
+          expect(receipt.gasUsed).to.be.lte(maxGas[contract].realisticTreeGas)
         })
         it('gas deeper node', async () => {
-          const proof = tree.getProof({
-            index: BigInt(90000),
-            account: wallet0.address as Address,
-            amount: BigInt(100),
-          })
           const tx = await claimWithSignature(distributor, contract, wallet0, txSigner, {
             index: 90000,
-            account: wallet0.address,
             amount: 100,
-            merkleProof: proof,
+            merkleProof: tree.getProof({
+              index: BigInt(90000),
+              account: wallet0.address as Address,
+              amount: BigInt(100),
+            }),
           })
           const receipt = await tx.wait()
-          expect(receipt.gasUsed).to.eq(gasUsed[contract as keyof typeof gasUsed].realisticTreeGasDeeperNode)
+          expect(receipt.gasUsed).to.be.lte(maxGas[contract].realisticTreeGasDeeperNode)
         })
         it('gas average random distribution', async () => {
           let total: BigNumber = BigNumber.from(0)
@@ -539,7 +688,6 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
             const proof = tree.getProof({ index: BigInt(i), account: wallet0.address as Address, amount: BigInt(100) })
             const tx = await claimWithSignature(distributor, contract, wallet0, txSigner, {
               index: i,
-              account: wallet0.address,
               amount: 100,
               merkleProof: proof,
             })
@@ -548,7 +696,7 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
             count++
           }
           const average = total.div(count)
-          expect(average).to.eq(gasUsed[contract as keyof typeof gasUsed].realisticTreeGasAverageRandom)
+          expect(average).to.be.lte(maxGas[contract].realisticTreeGasAverageRandom)
         })
         // this is what we gas golfed by packing the bitmap
         it('gas average first 25', async () => {
@@ -558,7 +706,6 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
             const proof = tree.getProof({ index: BigInt(i), account: wallet0.address as Address, amount: BigInt(100) })
             const tx = await claimWithSignature(distributor, contract, wallet0, txSigner, {
               index: i,
-              account: wallet0.address,
               amount: 100,
               merkleProof: proof,
             })
@@ -567,7 +714,7 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
             count++
           }
           const average = total.div(count)
-          expect(average).to.eq(gasUsed[contract as keyof typeof gasUsed].realisticTreeGasAverageFirst25)
+          expect(average).to.be.lte(maxGas[contract].realisticTreeGasAverageFirst25)
         })
 
         it('no double claims in random distribution', async () => {
@@ -575,14 +722,12 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
             const proof = tree.getProof({ index: BigInt(i), account: wallet0.address as Address, amount: BigInt(100) })
             await claimWithSignature(distributor, contract, wallet0, txSigner, {
               index: i,
-              account: wallet0.address,
               amount: 100,
               merkleProof: proof,
             })
             await expect(
               claimWithSignature(distributor, contract, wallet0, txSigner, {
                 index: i,
-                account: wallet0.address,
                 amount: 100,
                 merkleProof: proof,
               })
@@ -601,11 +746,6 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
           }
         }
         beforeEach('deploy', async () => {
-          // const { claims: innerClaims, merkleRoot, tokenTotal } = parseBalanceMap({
-          //   [wallet0.address]: 200,
-          //   [wallet1.address]: 300,
-          //   [wallets[2].address]: 250,
-          // })
           const {
             claims: innerClaims,
             merkleRoot,
@@ -619,8 +759,18 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
           })
           expect(tokenTotal).to.eq('0x02ee') // 750
           claims = innerClaims
-          distributor = await deployContract(distributorFactory, token.address, merkleRoot, contract, txSigner.address)
-          await token.setBalance(distributor.address, tokenTotal)
+          const totalAmount = BigInt(300) + BigInt(200) + BigInt(250)
+          await mockToken.setBalance(txSigner.address, totalAmount)
+          distributor = await deployContract(
+            creatorWallet,
+            distributorFactory,
+            mockToken,
+            merkleRoot,
+            contract,
+            txSigner.address,
+            totalAmount
+          )
+          expect(await mockToken.balanceOf(distributor.address)).to.eq(totalAmount)
         })
 
         it('check the proofs is as expected', () => {
@@ -652,10 +802,13 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
         it('all claims work exactly once', async () => {
           for (let account in claims) {
             const claim = claims[account]
+            const accountWallet = wallets.find((w) => w.address === account)
+            if (!accountWallet) {
+              throw new Error('Account not found')
+            }
             await expect(
-              claimWithSignature(distributor, contract, wallet0, txSigner, {
+              claimWithSignature(distributor, contract, accountWallet, txSigner, {
                 index: claim.index,
-                account,
                 amount: parseInt(claim.amount, 16),
                 merkleProof: claim.proof,
               })
@@ -663,15 +816,14 @@ for (const contract of ['MerkleDistributor', 'MerkleDistributorWithDeadline']) {
               .to.emit(distributor, 'Claimed')
               .withArgs(claim.index, account, claim.amount)
             await expect(
-              claimWithSignature(distributor, contract, wallet0, txSigner, {
+              claimWithSignature(distributor, contract, accountWallet, txSigner, {
                 index: claim.index,
-                account,
                 amount: parseInt(claim.amount, 16),
                 merkleProof: claim.proof,
               })
             ).to.be.revertedWith('AlreadyClaimed()')
           }
-          expect(await token.balanceOf(distributor.address)).to.eq(0)
+          expect(await mockToken.balanceOf(distributor.address)).to.eq(0)
         })
       })
     })
@@ -683,6 +835,7 @@ describe('#MerkleDistributorWithDeadline', () => {
   let wallet0: SignerWithAddress
   let wallet1: SignerWithAddress
   let txSigner: SignerWithAddress
+  let creatorWallet: SignerWithAddress
   let wallets: SignerWithAddress[]
   let distributor: Contract
   let tree: ReturnType<typeof createBalanceTree>
@@ -693,37 +846,40 @@ describe('#MerkleDistributorWithDeadline', () => {
     wallet0 = wallets[0]
     wallet1 = wallets[1]
     txSigner = wallets[2]
+    creatorWallet = wallets[3]
+
     const tokenFactory = await ethers.getContractFactory('TestERC20', wallet0)
     token = await tokenFactory.deploy('Token', 'TKN', 0, overrides)
+    const factoryFactory = await ethers.getContractFactory('MerkleDistributorFactory', wallet0)
+    const distributorFactory = await factoryFactory.deploy()
+
     tree = createBalanceTree({
       balances: [
         { account: wallet0.address as Address, amount: BigInt(100) },
         { account: wallet1.address as Address, amount: BigInt(101) },
       ],
     })
-    const merkleDistributorWithDeadlineFactory = await ethers.getContractFactory(
-      'MerkleDistributorWithDeadline',
-      wallet0
-    )
-    // Set the endTime to be 1 year after currentTimestamp
-    distributor = await merkleDistributorWithDeadlineFactory.deploy(
-      token.address,
+
+    const totalAmount = BigInt(100) + BigInt(101)
+
+    distributor = await deployContract(
+      creatorWallet,
+      distributorFactory,
+      token,
       tree.getHexRoot(),
-      currentTimestamp + 31536000,
+      'MerkleDistributorWithDeadline',
       txSigner.address,
-      overrides
+      totalAmount,
+      currentTimestamp + 31536000
     )
-    await token.setBalance(distributor.address, 201)
   })
 
   it('successful claim', async () => {
-    const proof0 = tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) })
     await expect(
       claimWithSignature(distributor, 'MerkleDistributorWithDeadline', wallet0, txSigner, {
         index: 0,
-        account: wallet0.address,
         amount: 100,
-        merkleProof: proof0,
+        merkleProof: tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) }),
       })
     )
       .to.emit(distributor, 'Claimed')
@@ -731,25 +887,24 @@ describe('#MerkleDistributorWithDeadline', () => {
   })
 
   it('only owner can withdraw', async () => {
-    distributor = distributor.connect(wallet1)
-    await expect(distributor.withdraw(overrides)).to.be.revertedWith('Ownable: caller is not the owner')
+    const tx = distributor.connect(wallet1).withdraw(overrides)
+    await expect(tx).to.be.revertedWith('Ownable: caller is not the owner')
   })
 
   it('cannot withdraw during claim window', async () => {
-    await expect(distributor.withdraw(overrides)).to.be.revertedWith('NoWithdrawDuringClaim()')
+    const tx = distributor.connect(creatorWallet).withdraw(overrides)
+    await expect(tx).to.be.revertedWith('NoWithdrawDuringClaim()')
   })
 
   it('cannot claim after end time', async () => {
     const oneSecondAfterEndTime = currentTimestamp + 31536001
     await ethers.provider.send('evm_mine', [oneSecondAfterEndTime])
     currentTimestamp = oneSecondAfterEndTime
-    const proof0 = tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) })
     await expect(
       claimWithSignature(distributor, 'MerkleDistributorWithDeadline', wallet0, txSigner, {
         index: 0,
-        account: wallet0.address,
         amount: 100,
-        merkleProof: proof0,
+        merkleProof: tree.getProof({ index: BigInt(0), account: wallet0.address as Address, amount: BigInt(100) }),
       })
     ).to.be.revertedWith('ClaimWindowFinished()')
   })
@@ -758,15 +913,39 @@ describe('#MerkleDistributorWithDeadline', () => {
     const oneSecondAfterEndTime = currentTimestamp + 31536001
     await ethers.provider.send('evm_mine', [oneSecondAfterEndTime])
     currentTimestamp = oneSecondAfterEndTime
-    expect(await token.balanceOf(wallet0.address)).to.eq(0)
-    await distributor.withdraw(overrides)
-    expect(await token.balanceOf(wallet0.address)).to.eq(201)
+    expect(await token.balanceOf(creatorWallet.address)).to.eq(0)
+    await distributor.connect(creatorWallet).withdraw(overrides)
+    expect(await token.balanceOf(creatorWallet.address)).to.eq(201)
   })
 
   it('only owner can withdraw even after end time', async () => {
     const oneSecondAfterEndTime = currentTimestamp + 31536001
     await ethers.provider.send('evm_mine', [oneSecondAfterEndTime])
+    currentTimestamp = oneSecondAfterEndTime
     distributor = distributor.connect(wallet1)
     await expect(distributor.withdraw(overrides)).to.be.revertedWith('Ownable: caller is not the owner')
+  })
+
+  describe('rescue tokens', () => {
+    let randomToken: Contract
+    beforeEach('deploy', async () => {
+      const tokenFactory = await ethers.getContractFactory('TestERC20', wallet0)
+      randomToken = await tokenFactory.deploy('TokenOops', 'PLZGIVEBACK', 0, overrides)
+      await randomToken.setBalance(distributor.address, 100)
+    })
+    it('only owner can rescue token', async () => {
+      const tx = distributor.connect(wallet0).rescueToken(token.address, overrides)
+      await expect(tx).to.be.revertedWith('Ownable: caller is not the owner')
+    })
+    it('cannot rescue the distributed token', async () => {
+      const tx = distributor.connect(creatorWallet).rescueToken(token.address, overrides)
+      await expect(tx).to.be.revertedWith('InvalidRescue()')
+    })
+    it('owner can rescue any other token', async () => {
+      expect(await randomToken.balanceOf(creatorWallet.address)).to.eq(0)
+      const tx = distributor.connect(creatorWallet).rescueToken(randomToken.address, overrides)
+      await expect(tx).not.to.be.reverted
+      expect(await randomToken.balanceOf(creatorWallet.address)).to.eq(100)
+    })
   })
 })

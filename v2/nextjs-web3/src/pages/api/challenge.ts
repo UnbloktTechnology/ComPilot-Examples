@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { createNexeraSdk } from "@nexeraid/js-sdk";
+import { createSdk } from "@compilot/js-sdk";
 
-const apiClient = createNexeraSdk({
+const apiClient = createSdk({
   webhookSecret: process.env.WEBHOOK_SECRET!,
-  apiKey: process.env.API_KEY!,
+  apiKey: process.env.COMPILOT_API_KEY_NEXTJS_WEB3!,
 });
 
 export default async function handler(

@@ -1,16 +1,16 @@
 <html>
 
 <head>
-  <title>Nexera: no frontend, no framework demo</title>
+  <title>ComPilot : no frontend, no framework demo</title>
   <script type="importmap">
       {
         "imports": {
-          "@nexeraid/web-sdk": "https://esm.sh/@nexeraid/web-sdk"
+          "@compilot/web-sdk": "https://esm.sh/@ncompilot/web-sdk"
         }
       }
     </script>
   <script>
-    var nexeraIdConfig;
+    var compilotConfig;
     var onclick;
   </script>
   <script type="module">
@@ -19,17 +19,17 @@
       watchWidgetVisibleState,
       createAuthAdapter,
       createConfig,
-    } from "@nexeraid/web-sdk";
+    } from "@compilot/web-sdk";
 
-    nexeraIdConfig = createConfig({
+    compilotConfig = createConfig({
       authAdapter: createAuthAdapter({
         // This is an implementation of the auth adapter
         createSession: async () => {
           try {
-            // Make a POST request to your API endpoint, previously created with wit nexera js-sdk, considering you created the path api/create-nexera-session.
+            // Make a POST request to your API endpoint, previously created with wit ComPilot js-sdk, considering you created the path api/create-session.
             // Make sur the backend is running on port 5000
             const response = await fetch(
-              "http://localhost:5000/api/create-nexera-session",
+              "http://localhost:5000/api/create-session",
               {
                 method: "POST", // HTTP method POST
                 headers: {
@@ -60,7 +60,7 @@
       }),
     });
 
-    watchWidgetVisibleState(nexeraIdConfig, {
+    watchWidgetVisibleState(compilotConfig, {
       onChange: (isVisible) => {
         alert("Widget changed visibility. Is visible: ", isVisible);
       },
@@ -68,7 +68,7 @@
 
     onclick = () => {
       alert("Opening widget");
-      openWidget(nexeraIdConfig);
+      openWidget(compilotConfig);
     };
   </script>
 </head>

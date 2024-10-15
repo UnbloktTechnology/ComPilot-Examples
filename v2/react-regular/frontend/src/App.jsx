@@ -1,20 +1,20 @@
 import logo from "../public/logo.png";
 import "./App.css";
-import { useOpenWidget } from "@nexeraid/react-sdk";
+import { useOpenWidget } from "@compilot/react-sdk";
 
 function App() {
   const openWidget = useOpenWidget();
   return (
     <>
       <div>
-        <img src={logo} className="logo" alt="nexeraID logo" />
+        <img src={logo} className="logo" alt="ComPilot logo" />
       </div>
       <h1>Example of a react app in regular mode</h1>
       <div className="card">
         <button
-          id="nexera-button"
+          id="compilot-button"
           disabled={openWidget.isLoading}
-          onClick={() => openWidget.mutateAsync()}
+          onClick={() => openWidget.openWidget()}
         >
           Open Widget
         </button>

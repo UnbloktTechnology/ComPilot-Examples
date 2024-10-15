@@ -1,7 +1,7 @@
-const { createNexeraSdk } = require("@nexeraid/js-sdk");
+const { createSdk } = require("@compilot/js-sdk");
 require("dotenv").config();
 
-const apiClient = createNexeraSdk({
+const apiClient = createSdk({
   webhookSecret: process.env.WEBHOOK_SECRET,
   apiKey: process.env.API_KEY,
 });
@@ -10,7 +10,7 @@ const express = require("express");
 const cors = require("cors");
 
 const app = express();
-const PORT = 5001;
+const PORT = 5002;
 
 // Middleware
 app.use(cors()); // Allows frontend to access the API
