@@ -4,13 +4,10 @@ import type { AppProps } from "next/app";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { NexeraIdProvider } from "@nexeraid/react-sdk";
 import { config } from "../wagmi";
-import { createWagmiWalletAdapter } from "@nexeraid/react-sdk-wallet-wagmi";
-import { createWeb3AuthAdapter, createConfig } from "@nexeraid/react-sdk";
-import { generateChallenge } from "../nexera-config";
-import { createWagmiWalletAdapter } from "@nexeraid/react-sdk-wallet-wagmi";
-import { NexeraIdProvider, createWeb3AuthAdapter, createConfig } from "@nexeraid/react-sdk";
+import { createWagmiWalletAdapter } from "@compilot/web-sdk-wallet-wagmi";
+import { ComPilotProvider, createWeb3AuthAdapter, createConfig } from "@compilot/react-sdk";
+import { generateChallenge } from "../compilot-config";
 
 
 const walletAdapter = createWagmiWalletAdapter(config);
@@ -18,7 +15,7 @@ const authAdapter = createWeb3AuthAdapter({
   generateChallenge,
   wallet: walletAdapter,
 });
-const nexeraConfig = createConfig({ authAdapter });
+const compilotConfig = createConfig({ authAdapter });
 
 const client = new QueryClient();
 
@@ -27,9 +24,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     <WagmiProvider config={config}>
       <QueryClientProvider client={client}>
         <RainbowKitProvider>
-          <NexeraIdProvider config={nexeraConfig}>
+          <ComPilotProvider config={compilotConfig}>
             <Component {...pageProps} />
-          </NexeraIdProvider>
+          </ComPilotProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

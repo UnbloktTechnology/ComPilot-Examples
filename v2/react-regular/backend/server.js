@@ -1,8 +1,8 @@
-const { createNexeraSdk } = require("@nexeraid/js-sdk");
+const { createSdk } = require("@compilot/js-sdk");
 const { API_KEY, WEBHOOK_SECRET, REGULAR_WORKFLOW_ID, CUSTOMER_ID, CUSTOMER_EMAIL, CUSTOMER_PHONE, CUSTOMER_WALLET_ADDRESS, CUSTOMER_WALLET_NAMESPACE } = process.env;
 require("dotenv").config();
 
-const apiClient = createNexeraSdk({
+const apiClient = createSdk({
   webhookSecret: WEBHOOK_SECRET,
   apiKey: API_KEY,
 });
@@ -48,8 +48,8 @@ if (CUSTOMER_WALLET_ADDRESS || CUSTOMER_WALLET_NAMESPACE) {
 
 // API routes
 
-//Regular route. CUSTOMER_ID must be replaced. you need to authenticate the user before opening a nexera user session.
-app.post("/api/create-nexera-session", async (req, res) => {
+//Regular route. CUSTOMER_ID must be replaced. you need to authenticate the user before opening a ComPilot user session.
+app.post("/api/create-session", async (req, res) => {
   try {
     // Create the session
     const sessionRes = await apiClient.createSession({

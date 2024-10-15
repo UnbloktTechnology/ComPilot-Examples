@@ -4,6 +4,7 @@ This repository contains the smart contracts for the Airdrop Platform. The main 
 
 1. **MerkleDistributor**: The core contract that handles the airdrop distribution using a Merkle tree for efficient and gas-optimized claiming.
 1. **MerkleDistributorWithDeadline**: A variant of MerkleDistributor that includes a deadline for the airdrop claiming process.
+1. **MerkleDistributorFactory**: A factory contract that deploys new instances of MerkleDistributor and MerkleDistributorWithDeadline.
 
 The Merkle tree approach allows for a large number of recipients to be included in the airdrop while keeping gas costs low for both deployment and claiming.
 
@@ -30,6 +31,7 @@ The contracts are written in Solidity and use the Hardhat development environmen
    c. set DEPLOY_ROOT to "local" to use your input allowList
    d. add rpc providers url such as AMOY_PROVIDER_URL or SEPOLIA_PROVIDER_URL
 6. Run deployment command `npm run deploy-{nameOfNetwork}` as shown in package.json
+   Alternatively if you want to deploy a factory contract, run `npm run deploy-factory-{nameOfNetwork}`
 7. Use the generated file `./outputFiles/allowListObj.json` in your front end to generate merkle proofs to claim tokens, as per shown in our example (the order of the keys matter in this case).
 
 ## Local Development

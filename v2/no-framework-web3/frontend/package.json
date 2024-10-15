@@ -12,8 +12,8 @@
     "vite": "^5.4.1"
   },
   "dependencies": {
-    "@nexeraid/react-sdk-wallet-wagmi": "^2.0.2",
-    "@nexeraid/web-sdk": "2.0.29-dev",
+    "@compilot/web-sdk": "^2.1.12",
+    "@compilot/web-sdk-wallet-wagmi": "^2.1.10",
     "@wagmi/connectors": "^5.1.9",
     "@wagmi/core": "^2.13.4",
     "@web3modal/wagmi": "^5.1.7",

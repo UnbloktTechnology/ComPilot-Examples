@@ -1,17 +1,19 @@
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
-require('dotenv').config()
+import 'dotenv/config'
+
 import { NEXERA_CHAINS } from '@nexeraprotocol/nexera-id-sig-gating-contracts-sdk/lib'
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-waffle'
 import '@nomicfoundation/hardhat-verify'
 
-module.exports = {
+const config = {
   solidity: {
     compilers: [
       {
         version: '0.8.20',
+        medadata: true,
         settings: {
           optimizer: {
             enabled: true,
@@ -24,27 +26,30 @@ module.exports = {
   etherscan: {
     apiKey: {
       polygon: `${process.env.ETHERSCAN_POLYGON_MAINNET_API_KEY}`,
-      polygonAmoy: `${process.env.ETHERSCAN_POLYGON_MAINNET_API_KEY}`,
+      polygonAmoy: `${process.env.ETHERSCAN_POLYGON_AMOY_API_KEY}`,
       base: `${process.env.ETHERSCAN_BASE_API_KEY}`,
       bsc: `${process.env.ETHERSCAN_BSC_API_KEY}`,
       mainnet: `${process.env.ETHERSCAN_ETHEREUM_API_KEY}`,
-      sepolia: `${process.env.ETHERSCAN_ETHEREUM_API_KEY}`,
+      sepolia: `${process.env.ETHERSCAN_SEPOLIA_API_KEY}`,
       optimisticEthereum: `${process.env.ETHERSCAN_OPTIMISM_API_KEY}`,
     },
+    customChains: [
+      {
+        network: 'polygonAmoy',
+        chainId: 80002,
+        urls: {
+          apiURL: 'https://api-amoy.polygonscan.com/api',
+          browserURL: 'https://amoy.polygonscan.com',
+        },
+      },
+    ],
   },
   sourcify: {
     // Disabled by default
     // Doesn't need an API key
-    enabled: true,
+    enabled: false,
   },
   networks: {
-    hardhat: {
-      settings: {
-        debug: {
-          revertStrings: 'debug',
-        },
-      },
-    },
     tenderly: {
       chainId: 1,
       url: `https://rpc.tenderly.co/fork/${process.env.TENDERLY_FORK_ID}`,
@@ -67,3 +72,5 @@ module.exports = {
     },
   },
 }
+
+export default config

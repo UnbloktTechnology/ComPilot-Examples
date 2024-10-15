@@ -1,5 +1,5 @@
 import type { AppType } from "next/app";
-import "@/styles/globals.css";
+import "@/ui/styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import "react-toastify/dist/ReactToastify.css";
 import dynamic from "next/dynamic";

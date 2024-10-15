@@ -7,17 +7,17 @@
   <script type="module">
 
 
-    import { createWagmiWalletAdapter } from "@nexeraid/react-sdk-wallet-wagmi";
-    import { createWeb3AuthAdapter, createConfig, _setInternalConfig, openWidget, watchWidgetVisibleState } from "@nexeraid/web-sdk";
-    import { generateChallenge } from "./nexera-config.ts";
-    import { _setInternalConfig as _setInternalConfigReact } from "@nexeraid/web-sdk";
+    import { createWagmiWalletAdapter } from "@compilot/web-sdk-wallet-wagmi";
+    import { createWeb3AuthAdapter, createConfig, _setInternalConfig, openWidget, watchWidgetVisibleState } from "@compilot/web-sdk";
+    import { generateChallenge } from "./compilot-config.ts";
+    import { _setInternalConfig as _setInternalConfigReact } from "@compilot/web-sdk";
     import { config } from "./main";
 
     const walletAdapter = createWagmiWalletAdapter(config);
     const authAdapter = createWeb3AuthAdapter({ generateChallenge, wallet: walletAdapter });
-    const nexeraIdConfig = createConfig({ authAdapter });
+    const compilotConfig = createConfig({ authAdapter });
     onclick = () => {
-      openWidget(nexeraIdConfig);
+      openWidget(compilotConfig);
     };
   </script>
 </head>

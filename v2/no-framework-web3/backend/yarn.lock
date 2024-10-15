@@ -2,63 +2,54 @@
 # yarn lockfile v1
 
 
-"@nexeraid/api-client@1.10.2-dev":
-  version "1.10.2-dev"
-  resolved "https://registry.yarnpkg.com/@nexeraid/api-client/-/api-client-1.10.2-dev.tgz#cb3d053976662e7460f594beead2d1e6c664a39f"
-  integrity sha512-ohzAF+ctWPrWG3STMRMOdtdRyPCBGosZ+ugKVL81e9+kg60pubVbJiRGBNxyPSEYBqss3PYxYowP+2Le9hnR0Q==
+"@compilot/js-sdk@^2.1.12":
+  version "2.1.12"
+  resolved "https://registry.yarnpkg.com/@compilot/js-sdk/-/js-sdk-2.1.12.tgz#3a507a3cec440222a51ef0733fc0c294a1030ac7"
+  integrity sha512-MBBVIzxP/trf0/FwpHznDl7omrC9iGdNuVC+5dG6Fq0n2O3t6SNVFupOxlXmh3kG/aaGNm1GvZuHKyqbsNbonw==
   dependencies:
-    "@nexeraid/identity-schemas" "1.12.6-dev"
+    "@nexeraid/api-client" "2.1.9"
+    "@nexeraid/identity-api-client" "2.1.9"
+    "@nexeraid/identity-schemas" "2.1.12"
+    "@nexeraid/logger" "2.1.7"
+    pino "^9.4.0"
+    svix "1.21.0"
+    zod "^3.23.8"
+
+"@nexeraid/api-client@2.1.9":
+  version "2.1.9"
+  resolved "https://registry.yarnpkg.com/@nexeraid/api-client/-/api-client-2.1.9.tgz#31ebb2454b60c33c2a8fbfa7c9c3a6b9ef213f63"
+  integrity sha512-3qVOZYXGIjFiPDdlaEdcnWXnuz25B5cUWjgXijKJXoIRYalRYP7dPO290fvs02FPjsDJdEVtjChNxy9L6Pl36g==
+  dependencies:
+    "@nexeraid/identity-schemas" "2.1.12"
     "@trpc/server" "^10.45.2"
     zod "^3.23.8"
-    zod-validation-error "^3.3.1"
+    zod-validation-error "^3.4.0"
 
-"@nexeraid/identity-api-client@1.3.215-dev":
-  version "1.3.215-dev"
-  resolved "https://registry.yarnpkg.com/@nexeraid/identity-api-client/-/identity-api-client-1.3.215-dev.tgz#1cf8d883367a3d6425f2a72242e785a0c0ff3adc"
-  integrity sha512-YrO/GAZGRB5ScbQsqd1R+GqKYPEUe+vpk/SxXVwN9QHAVuZDDiF3F9E603bPqdQDNu73ebcDqHiq0OmU2ar6OQ==
+"@nexeraid/identity-api-client@2.1.9":
+  version "2.1.9"
+  resolved "https://registry.yarnpkg.com/@nexeraid/identity-api-client/-/identity-api-client-2.1.9.tgz#a78014be16523a31fa4590ebdeeefb76cdc7ab65"
+  integrity sha512-yBhNOoF0PxQHogSjld0d+R06aCjdS+hPJXOgQ6YEZhaC2vcLBPOi9OguA9qMx/aZIgAzkzZ7FS9goKp17kNgZQ==
   dependencies:
-    "@nexeraid/identity-schemas" "1.12.6-dev"
+    "@nexeraid/identity-schemas" "2.1.12"
     zod "3.22.4"
-    zod-validation-error "^3.3.1"
+    zod-validation-error "^3.4.0"
 
-"@nexeraid/identity-schemas@1.12.27-dev":
-  version "1.12.27-dev"
-  resolved "https://registry.yarnpkg.com/@nexeraid/identity-schemas/-/identity-schemas-1.12.27-dev.tgz#f9a3bdb9dc0f8e92935f8c3cab6601efa88743bd"
-  integrity sha512-68GBSzy6JHWL/y4y5T3a73MY3M9rU+eYH3K3zFQF54afZboDiGIhk2EkcQqGzfCzqL7e54a9bQ6HfT/HGUPTPQ==
+"@nexeraid/identity-schemas@2.1.12":
+  version "2.1.12"
+  resolved "https://registry.yarnpkg.com/@nexeraid/identity-schemas/-/identity-schemas-2.1.12.tgz#460e927c200041e827a0cd2975c59e342ba38c32"
+  integrity sha512-ekKnf/MD7fCA1vcMn17c3i08C9M2hvY9bBCvF0ypiy/6Na24whPfY/StH6XbXc5KBAqBtFGsTkAu3bcIgN+snQ==
   dependencies:
     nanoid "3.3.4"
     zod "^3.23.8"
     zod-to-json-schema "^3.23.3"
 
-"@nexeraid/identity-schemas@1.12.6-dev":
-  version "1.12.6-dev"
-  resolved "https://registry.yarnpkg.com/@nexeraid/identity-schemas/-/identity-schemas-1.12.6-dev.tgz#bec51d1d00241891806d28168f72f7683725297d"
-  integrity sha512-uQlffSWKJkxrJUlUpbcWsq3e+8V4z36MPAqHgZrWFXf99AltSpXZjGVq0uOr1w4namwKmmsY8UPPMWgcOFO5UA==
-  dependencies:
-    nanoid "3.3.4"
-    zod "^3.23.8"
-    zod-to-json-schema "^3.23.2"
-
-"@nexeraid/js-sdk@2.0.28-dev":
-  version "2.0.28-dev"
-  resolved "https://registry.yarnpkg.com/@nexeraid/js-sdk/-/js-sdk-2.0.28-dev.tgz#446b36b852fe4ecaa199ece43dc73a45739d0af9"
-  integrity sha512-Uqe1pTHErRNoYpEGyP6nIfD51bvXBKUyro2S0fIf2Mo905jupFBW8D4HsnhHuwRKDyVz+ysv/0d7OniMuuaiQA==
-  dependencies:
-    "@nexeraid/api-client" "1.10.2-dev"
-    "@nexeraid/identity-api-client" "1.3.215-dev"
-    "@nexeraid/identity-schemas" "1.12.27-dev"
-    "@nexeraid/logger" "0.1.2-dev"
-    pino "^9.4.0"
-    svix "1.21.0"
-    zod "^3.23.8"
-
-"@nexeraid/logger@0.1.2-dev":
-  version "0.1.2-dev"
-  resolved "https://registry.yarnpkg.com/@nexeraid/logger/-/logger-0.1.2-dev.tgz#77f86318dc888f09376087eb1a9480c4c13569e3"
-  integrity sha512-GVDN+3s3K/xwWJ5K7RFOA/nB6nAq9Z8SjLdf1wJxE84lqWuezFSvn3SraJIaDhIZsulFdretKxjfKOQiCdAajw==
+"@nexeraid/logger@2.1.7":
+  version "2.1.7"
+  resolved "https://registry.yarnpkg.com/@nexeraid/logger/-/logger-2.1.7.tgz#01c3cafa9abc73632a1e028baa17ab71edbcc39c"
+  integrity sha512-iodHc1frasNLzuWqtqmImLt3BeljisG7s4TEnIiRU8aR3WuINH6dyTm7rrXPvPef42L5PVJ9R4ebyixlv3Qtuw==
   dependencies:
     browserify "^17.0.0"
-    pino "^9.3.2"
+    pino "^9.4.0"
     pino-std-serializers "^7.0.0"
     zod "^3.23.8"
 
@@ -1277,7 +1268,7 @@ pino-std-serializers@^7.0.0:
   resolved "https://registry.yarnpkg.com/pino-std-serializers/-/pino-std-serializers-7.0.0.tgz#7c625038b13718dbbd84ab446bd673dc52259e3b"
   integrity sha512-e906FRY0+tV27iq4juKzSYPbUj2do2X2JX4EzSca1631EB2QJQUqGbDuERal7LCtOpxl6x3+nvo9NPZcmjkiFA==
 
-pino@^9.3.2, pino@^9.4.0:
+pino@^9.4.0:
   version "9.4.0"
   resolved "https://registry.yarnpkg.com/pino/-/pino-9.4.0.tgz#e4600ff199efc744856a5b3b71c53e38998eae5a"
   integrity sha512-nbkQb5+9YPhQRz/BeQmrWpEknAaqjpAqRK8NwJpmrX/JHu7JuZC5G1CeAwJDJfGes4h+YihC6in3Q2nGb+Y09w==
@@ -1862,15 +1853,15 @@ xtend@^4.0.0, xtend@^4.0.1, xtend@^4.0.2, xtend@~4.0.1:
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.2.tgz#bb72779f5fa465186b1f438f674fa347fdb5db54"
   integrity sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==
 
-zod-to-json-schema@^3.23.2, zod-to-json-schema@^3.23.3:
+zod-to-json-schema@^3.23.3:
   version "3.23.3"
   resolved "https://registry.yarnpkg.com/zod-to-json-schema/-/zod-to-json-schema-3.23.3.tgz#56cf4e0bd5c4096ab46e63159e20998ec7b19c39"
   integrity sha512-TYWChTxKQbRJp5ST22o/Irt9KC5nj7CdBKYB/AosCRdj/wxEMvv4NNaj9XVUHDOIp53ZxArGhnw5HMZziPFjog==
 
-zod-validation-error@^3.3.1:
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/zod-validation-error/-/zod-validation-error-3.3.1.tgz#86adc781129d1a7fed3c3e567e8dbe7c4a15eaa4"
-  integrity sha512-uFzCZz7FQis256dqw4AhPQgD6f3pzNca/Zh62RNELavlumQB3nDIUFbF5JQfFLcMbO1s02Q7Xg/gpcOBlEnYZA==
+zod-validation-error@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/zod-validation-error/-/zod-validation-error-3.4.0.tgz#3a8a1f55c65579822d7faa190b51336c61bee2a6"
+  integrity sha512-ZOPR9SVY6Pb2qqO5XHt+MkkTRxGXb4EVtnjc9JpXUOtUB1T9Ru7mZOT361AN3MsetVe7R0a1KZshJDZdgp9miQ==
 
 zod@3.22.4:
   version "3.22.4"

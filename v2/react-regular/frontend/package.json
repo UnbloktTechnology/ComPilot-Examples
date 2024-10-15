@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@nexeraid/react-sdk": "2.0.34-dev",
+    "@compilot/react-sdk": "^2.1.12",
     "next": "^14.2.8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

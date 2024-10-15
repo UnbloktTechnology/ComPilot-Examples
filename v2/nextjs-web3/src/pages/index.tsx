@@ -2,29 +2,29 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import type { NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
-import { useOpenWidget } from "@nexeraid/react-sdk";
+import { useOpenWidget } from "@compilot/react-sdk";
 
 const Home: NextPage = () => {
   const openWidget = useOpenWidget();
   return (
     <div className={styles.container}>
       <Head>
-        <title>NexeraID Next.Js Web3</title>
-        <meta content="NexeraID Example" name="description" />
+        <title>ComPilot Next.Js Web3</title>
+        <meta content="ComPilot Example" name="description" />
       </Head>
 
       <main className={styles.main}>
         <ConnectButton />
 
         <button
-          id="nexera-button"
+          id="compilot-button"
           disabled={openWidget.isPending}
-          onClick={() => openWidget.mutateAsync()}
+          onClick={() => openWidget.openWidget()}
         >
           Open Widget
         </button>
         <h1 className={styles.title}>
-          Welcome to <a href="">NexeraID</a>
+          Welcome to <a href="">ComPilot</a>
           <br /> NextJS Web3 example.
         </h1>
 
@@ -32,21 +32,21 @@ const Home: NextPage = () => {
           This example uses RainbowKit and Wagmi. Get started by editing{" "}
           <code className={styles.code}>pages/index.tsx</code>
           <br />
-          Check _app.tsx , nexera-config.ts and challenge.ts to work on NexeraID
+          Check _app.tsx , compilot-config.ts and challenge.ts to work on ComPilot
           integration
         </p>
 
         <div className={styles.grid}>
           <a className={styles.card} href="https://docs.compilot.ai">
-            <h2>NexeraID Documentation &rarr;</h2>
+            <h2>ComPilot Documentation &rarr;</h2>
             <p>Learn how to Implement our compliance widget on your App.</p>
           </a>
           <a
             className={styles.card}
-            href="https://github.com/UnbloktTechnology/nexeraid-examples/tree/development/v2"
+            href="https://github.com/UnbloktTechnology/compilot-examples/tree/development/v2"
           >
-            <h2>NexeraID Examples &rarr;</h2>
-            <p>Discover example NexeraID projects.</p>
+            <h2>ComPilot Examples &rarr;</h2>
+            <p>Discover example ComPilot projects.</p>
           </a>
           <a className={styles.card} href="https://rainbowkit.com">
             <h2>RainbowKit Documentation &rarr;</h2>
