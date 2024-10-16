@@ -29,7 +29,7 @@
     "@tanstack/react-query-devtools": "^5.29.2",
     "@taquito/beacon-wallet": "^19.2.0",
     "@taquito/taquito": "^19.2.0",
-    "@taquito/utils": "^19.2.0",
+    "@taquito/utils": "^20.0.1",
     "@upstash/redis": "^1.22.1",
     "ethereumjs-util": "^7.0.4",
     "ethers": "^5.7.2",
