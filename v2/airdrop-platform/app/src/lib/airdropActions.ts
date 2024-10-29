@@ -1,9 +1,8 @@
-// TODO ExtendedTxAuthInput shold be exposed in react and web sdks
-import { CUSTOMERS_BALANCE_MAP } from "../config/CUSTOMERS_BALANCE_MAP";
 import { parseBalanceMap } from "@compilot/merkle-tree-js";
 import { type Address, encodeFunctionData, type Hex } from "viem";
 import { MerkleDistributorAbi } from "../abis/MerkleDistributorAbi";
 import {
+  CUSTOMERS_BALANCE_MAP,
   getDeploymentChain,
   getDistributorContractAddress,
 } from "../config/EXAMPLE_AIRDROP_CONTRACT_ADDRESSES";

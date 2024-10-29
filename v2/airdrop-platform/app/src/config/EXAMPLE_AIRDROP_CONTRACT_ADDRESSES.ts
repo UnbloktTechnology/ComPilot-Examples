@@ -3,6 +3,11 @@ import type { Address } from "viem";
 
 import { env } from "@/env.mjs";
 import { EvmChainId } from "@compilot/react-sdk";
+import { type BalanceMap } from "@compilot/merkle-tree-js";
+
+import allowListObj from "./allowListObj.json";
+
+export const CUSTOMERS_BALANCE_MAP: BalanceMap[] = allowListObj.balances;
 
 export const getDistributorContractAddress = () => {
   const distributorAddress =
@@ -21,7 +26,7 @@ export const getAirdropTokenConfig = () => {
   if (!tokenAddress) {
     throw new Error("Token address not found");
   }
-  return { address: tokenAddress, symbol: "PEAQ", decimals: 18 };
+  return { address: tokenAddress, symbol: "ATKN", decimals: 18 };
 };
 
 export const getDeploymentChain = () => {
