@@ -107,7 +107,7 @@ const deployDistributorWithFactory = async (
 async function main({ useFactory }: { useFactory: null | Address }) {
   // Deploy example token
   const tokenFactory = await ethers.getContractFactory('TestERC20')
-  const token = await tokenFactory.deploy('AidropToken', 'ATKN', 0)
+  const token = await tokenFactory.deploy('AidropToken', 'PEAQ-TESTNET', 0)
   console.log(`Example token deployed at ${token.address}`)
 
   const merkleRoot =

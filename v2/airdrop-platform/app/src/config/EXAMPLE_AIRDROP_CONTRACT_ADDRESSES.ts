@@ -3,6 +3,11 @@ import type { Address } from "viem";
 
 import { env } from "@/env.mjs";
 import { EvmChainId } from "@compilot/react-sdk";
+import { type BalanceMap } from "@compilot/merkle-tree-js";
+
+import allowListObj from "./allowListObj.json";
+
+export const CUSTOMERS_BALANCE_MAP: BalanceMap[] = allowListObj.balances;
 
 export const getDistributorContractAddress = () => {
   const distributorAddress =
@@ -21,7 +26,7 @@ export const getAirdropTokenConfig = () => {
   if (!tokenAddress) {
     throw new Error("Token address not found");
   }
-  return { address: tokenAddress, symbol: "PEAQ", decimals: 18 };
+  return { address: tokenAddress, symbol: "PEAQ-TESTNET", decimals: 18 };
 };
 
 export const getDeploymentChain = () => {
@@ -52,15 +57,15 @@ const EXAMPLE_AIRDROP_CONTRACT_ADDRESSES: {
     merkleDistributorAddress: "0xefAd1faC927aBc388E8bFbEf6b97509cdb9d65BF",
   },
   dev: {
-    tokenAddress: "0x6fE18a32Fc0b31b18f357Df3f2AEC7e53B252c4A",
-    merkleDistributorAddress: "0x1108095730893563f8Fd894B7FFbE0e75993A651",
+    tokenAddress: "0xecbBA2f4370818e7129a8cE2F7402D7860C1dB0E",
+    merkleDistributorAddress: "0xE322d2d90a6327533032f45410E1c47e862ef868",
   },
   stage: {
-    tokenAddress: "0x9bBB37a7c289F767a333EEEFa7e69cD5122ad53F",
-    merkleDistributorAddress: "0x743a70CbdB499DE763ce43512De15c185d044661",
+    tokenAddress: "0x22dB8f9cBa5A9A5100B69bbd61f6d08f560D8C96",
+    merkleDistributorAddress: "0xDd50cFac7Cae728723307aaAaFb62716dDA77551",
   },
   prod: {
-    tokenAddress: "0x6Cc34F653aafCa532D511fBFd8033C4791Da75FA",
-    merkleDistributorAddress: "0x2071Db82ECa06711e88bF4B753f95403D678d0dF",
+    tokenAddress: "0x2E9d4E7563400DA9eEdF79ff51124C41a47Bf082",
+    merkleDistributorAddress: "0x9D78c9d1c25748DB49388Ab1250d1779C6871e15",
   },
 } as const;
