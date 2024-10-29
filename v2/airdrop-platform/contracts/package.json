@@ -34,7 +34,8 @@
     "deploy-polygonAmoy-nofactory": "npm run prepare-merkle-root && hardhat run ./scripts/deployTokenAndMerkleDistributor.ts --network polygonAmoy",
     "deploy-sepolia-nofactory": "npm run prepare-merkle-root && hardhat run ./scripts/deployTokenAndMerkleDistributor.ts --network sepolia",
     "deploy-factory-polygonAmoy": "hardhat run ./scripts/deployMerkleDistributorFactory.ts --network polygonAmoy",
-    "deploy-factory-sepolia": "hardhat run ./scripts/deployMerkleDistributorFactory.ts --network sepolia"
+    "deploy-factory-sepolia": "hardhat run ./scripts/deployMerkleDistributorFactory.ts --network sepolia",
+    "verify-token-contract-polygonAmoy": "hardhat verify --network polygonAmoy 0x2E9d4E7563400DA9eEdF79ff51124C41a47Bf082 'AidropToken' 'PEAQ-TESTNET' '0'"
   },
   "devDependencies": {
     "@compilot/merkle-tree-js": "2.3.22-dev",
