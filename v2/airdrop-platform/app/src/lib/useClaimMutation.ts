@@ -24,7 +24,6 @@ export const useClaimMutation = (walletAddress?: Address) => {
         if (!accountAddress) {
           throw new Error("No account address provided");
         }
-        console.log("Claiming token for address", accountAddress);
         const result = await claimToken({
           userAddress: accountAddress,
         });

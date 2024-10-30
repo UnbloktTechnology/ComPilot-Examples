@@ -13,6 +13,8 @@ import { useAuthenticate, useCustomerStatus } from "@compilot/react-sdk";
 import { ConnectWalletButton } from "./ConnectWalletButton";
 import { Button } from "./Button";
 import { useAccount } from "wagmi";
+import { useIsLoadingStoredSession } from "@/sessionStore";
+import { Spinner } from "./Spinner";
 
 export const WalletMenu = () => {
   const account = useAccount();
@@ -20,6 +22,7 @@ export const WalletMenu = () => {
   const authenticate = useAuthenticate();
   const username = useUsername();
   const logout = useLogout();
+  const isLoadingStoredSession = useIsLoadingStoredSession();
   const customerStatus = useCustomerStatus();
   const isLoading = customerStatus.isLoading;
   const isCustomerActive = customerStatus.data === "Active";
@@ -34,6 +37,16 @@ export const WalletMenu = () => {
           variant="black"
           className="text-sm"
         />
+      </div>
+    );
+  }
+
+  if (isLoadingStoredSession) {
+    return (
+      <div className="flex h-14 justify-center space-x-4 px-4 py-2 text-sm">
+        <Button variant="black" id="identity-btn">
+          <Spinner />
+        </Button>
       </div>
     );
   }

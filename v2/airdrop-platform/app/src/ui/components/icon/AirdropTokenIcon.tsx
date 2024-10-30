@@ -4,7 +4,7 @@ import Image from "next/image";
 export const AirdropTokenIcon = () => (
   <Image
     src="/airdrop/airdrop-token-icon.svg"
-    alt={getAirdropTokenConfig().symbol + " icon"}
+    alt={getAirdropTokenConfig().displayName + " icon"}
     style={{ display: "inline" }}
     width={24}
     height={25}
