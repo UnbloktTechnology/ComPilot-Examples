@@ -32,6 +32,8 @@ import { useIsClaimed } from "@/lib/useIsClaimed";
 import { useClaimMutation } from "@/lib/useClaimMutation";
 import { AddressCheckedIcon } from "@/ui/components/icon/AddressCheckedIcon";
 import { useIsLoadingStoredSession } from "@/sessionStore";
+import { LargeXIcon } from "@/ui/components/icon/LargeXIcon";
+import { useRedirectToCheckWallet } from "@/lib/navigation";
 
 const AccountPageContext = createContext<{
   modalOpen: boolean;
@@ -52,7 +54,6 @@ const AccountPageContext = createContext<{
 const AccountPageProvider = ({ children }: { children: React.ReactNode }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [forAddress, setForAddress] = useState<Address>("0x00");
-
   const start = useCallback(
     (address: Address) => {
       setForAddress(address);
@@ -95,8 +96,12 @@ const AccountPageContent = () => {
   } = useAuthenticate();
   const [addressToCheck, setAddressToCheck] = useState<Address | null>(null);
   const { modalOpen } = useContext(AccountPageContext);
-  const { address } = useAccount();
-  const claimerAddress = addressToCheck ?? address;
+  const redirectToCheckWallet = useRedirectToCheckWallet();
+
+  const onExitProfile = useCallback(() => {
+    if (!account.address) return;
+    redirectToCheckWallet(account.address);
+  }, [redirectToCheckWallet, account.address]);
 
   if (isLoadingStoredSession) {
     return (
@@ -143,9 +148,15 @@ const AccountPageContent = () => {
 
   return (
     <AirdropLayout showTitles={false}>
-      <div className="inline-flex w-full max-w-[800px] flex-col items-start justify-start gap-4 rounded-2xl bg-slate-50 p-8">
-        <div className="inline-flex items-center justify-start gap-4 self-stretch border-b border-slate-400 pb-6">
-          <div className=" text-3xl font-normal leading-loose text-gray-900">
+      <div className="inline-flex w-full max-w-[800px] flex-col items-start justify-start gap-4 rounded-2xl bg-slate-50 p-6">
+        <div className="inline-flex items-center justify-start gap-4 self-stretch border-b border-[#a7b3cc] pb-6">
+          <div
+            className="flex cursor-pointer items-center gap-2"
+            onClick={onExitProfile}
+          >
+            <LargeXIcon />
+          </div>
+          <div className="text-3xl font-normal leading-loose text-gray-900">
             Profile
           </div>
           <div className="grow">
@@ -153,8 +164,6 @@ const AccountPageContent = () => {
           </div>
         </div>
         <div className="flex w-full flex-col items-start justify-start gap-4 self-stretch pt-2">
-          {claimerAddress && <AddressClaimer address={claimerAddress} />}
-
           <AddressSearchBar
             variant="flat"
             onWalletAddressValid={(address, { clear }) => {
@@ -163,6 +172,7 @@ const AccountPageContent = () => {
             }}
             isLoading={false}
           />
+          {addressToCheck && <AddressClaimer address={addressToCheck} />}
         </div>
       </div>
       {modalOpen && <AttachWalletModal />}
@@ -287,14 +297,26 @@ export const AddressClaimer = ({ address }: { address: Address }) => {
                 <p>Claimed</p>
               </div>
             )}
+
+            {step === "not_qualified" && (
+              <div className="stretch flex h-full min-w-32 items-center justify-center text-sm font-semibold leading-tight text-slate-400">
+                <p>Not eligible</p>
+              </div>
+            )}
           </div>
         </div>
         <div className="inline-flex items-start justify-start gap-2 self-stretch">
-          <div className="text-sm font-medium text-slate-600">
-            {formatAirdropTokenAmount(amountEligible)} $
-            {getAirdropTokenConfig().displayName} allocated{" "}
-            {isClaimedQuery.data === true ? "and claimed" : ""}
-          </div>
+          {amountEligible > 0n ? (
+            <div className="text-sm font-medium text-slate-600">
+              {formatAirdropTokenAmount(amountEligible)} $
+              {getAirdropTokenConfig().displayName} allocated{" "}
+              {isClaimedQuery.data === true ? "and claimed" : ""}
+            </div>
+          ) : (
+            <div className="text-sm font-medium text-slate-600">
+              No allocation/doesn’t qualify
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -364,51 +386,67 @@ const AttachWalletModal = () => {
               {
                 {
                   must_connect: "Connect your wallet",
-                  must_change_account: "Please switch your wallet",
+                  must_change_account: "Wallet linking",
                   can_link: "Link this wallet",
                   linking: "Linking wallet",
                   linked: "Wallet is linked to your account",
-                  must_cancel: "Cannot link this wallet to your account",
+                  must_cancel: "Wallet already linked",
                   success: "Wallet linked o/",
                 }[step]
               }
             </h2>
           </div>
           <p className="mt-4 text-left text-sm text-gray-400">
-            {
-              {
-                must_connect: "You need to connect your wallet to link it",
-                must_change_account: `Please switch your wallet to address ${forAddress} to link it`,
-                can_link: "You can link this wallet",
-                linking: "Please sign the request in your wallet  👉",
-                linked: "Wallet is linked to your account",
-                must_cancel: "Cannot link this wallet to your account",
-                success: `You can now login with ${forAddress}`,
-              }[step]
-            }
             {addWalletMutation.error &&
               (addWalletMutation.error instanceof
               WalletAlreadyLinkedToAnotherIdentity ? (
                 <p className="text-red-500">
-                  This wallet is already linked to another account
+                  This wallet is already attached to another account.
                 </p>
               ) : (
                 <p>{addWalletMutation.error.message}</p>
               ))}
+            {
+              {
+                must_connect: "You need to connect your wallet to link it",
+                must_change_account: (
+                  <div className="flex flex-col items-start justify-start">
+                    <div>
+                      Please <b className="text-white">switch your wallet</b> to
+                      address{" "}
+                      <b className="text-white">
+                        {formatAddress(forAddress, 20)}
+                      </b>{" "}
+                      to link it to your account
+                    </div>
+                    <a
+                      className="mt-2 text-blue-600 underline"
+                      target="_blank"
+                      href="https://support.metamask.io/managing-my-wallet/accounts-and-addresses/switching-accounts-in-metamask/"
+                    >
+                      Learn how to change the connected wallet
+                    </a>
+                  </div>
+                ),
+                can_link: "You can link this wallet",
+                linking: "Please sign the request in your wallet  👉",
+                linked: "Wallet is linked to your account",
+                must_cancel:
+                  "Cannot link this wallet to multiple accounts. To claim please sign in with that wallet and use the KYC information you already provided with this wallet.",
+                success: (
+                  <>
+                    You can now login with{" "}
+                    <b className="text-white">
+                      {formatAddress(forAddress, 20)}
+                    </b>
+                  </>
+                ),
+              }[step]
+            }
           </p>
           <div className="items-right mt-4 flex justify-between">
-            <Button variant="transparent" onClick={close}>
-              Back
-            </Button>
-
             {step === "must_connect" && (
               <ConnectWalletButton label="Connect" variant="primary" />
-            )}
-
-            {step === "must_change_account" && (
-              <Button variant="primary" disabled={true}>
-                Link {formatAddress(forAddress)}
-              </Button>
             )}
 
             {step === "can_link" && (
