@@ -52,7 +52,6 @@ const AccountPageContext = createContext<{
 const AccountPageProvider = ({ children }: { children: React.ReactNode }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [forAddress, setForAddress] = useState<Address>("0x00");
-  const isLoadingStoredSession = useIsLoadingStoredSession();
 
   const start = useCallback(
     (address: Address) => {
@@ -71,10 +70,6 @@ const AccountPageProvider = ({ children }: { children: React.ReactNode }) => {
     [modalOpen, forAddress, start, close],
   );
 
-  if (isLoadingStoredSession) {
-    return <Spinner />;
-  }
-
   return (
     <AccountPageContext.Provider value={value}>
       {children}
@@ -91,6 +86,7 @@ export default function AccountPage() {
 }
 
 const AccountPageContent = () => {
+  const isLoadingStoredSession = useIsLoadingStoredSession();
   const account = useAccount();
   const {
     data: isKycAuthenticated,
@@ -101,6 +97,14 @@ const AccountPageContent = () => {
   const { modalOpen } = useContext(AccountPageContext);
   const { address } = useAccount();
   const claimerAddress = addressToCheck ?? address;
+
+  if (isLoadingStoredSession) {
+    return (
+      <AirdropLayout>
+        <Spinner />
+      </AirdropLayout>
+    );
+  }
 
   if (!account?.address) {
     return (

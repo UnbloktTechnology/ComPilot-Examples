@@ -59,7 +59,7 @@ const DropDown = ({ children }: { children: React.ReactNode }) => {
   const { isOpen } = useContext(DropDownContext);
   return (
     <div
-      className="absolute right-0 z-20 w-56 origin-top-right rounded-md  bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+      className="absolute right-4 z-20 w-56 origin-top-right rounded-md  bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
       role="menu"
       aria-orientation="vertical"
       aria-labelledby="menu-button"

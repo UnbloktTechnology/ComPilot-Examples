@@ -87,16 +87,8 @@ export const WalletMenu = () => {
 
       <DropDownMenu.DropDown>
         <DropDownMenu.Item>
-          <div className="flex items-center justify-start gap-1">
-            <div className="text-gray-95 text-base font-normal leading-normal">
-              Connected With
-            </div>
-          </div>
-        </DropDownMenu.Item>
-
-        <DropDownMenu.Item>
-          <div className="flex items-center justify-start gap-1">
-            <div className=" text-gray-950">{formatAddress(address, 10)}</div>
+          <div className="text-sm leading-none text-neutral-600">
+            Connected with {formatAddress(address, 3)}
           </div>
         </DropDownMenu.Item>
 
