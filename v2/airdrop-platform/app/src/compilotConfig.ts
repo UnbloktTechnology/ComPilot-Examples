@@ -34,11 +34,13 @@ void bindCompilotConfigToLocalStorage(compilotConfig);
 
 // sync the account with the compilot session when the change comes from the wallet
 watchAccount(wagmiConfig, {
-  onChange: () => {
+  onChange: (newAccount, prevAccount) => {
+    const addressChanged = newAccount?.address !== prevAccount?.address;
     // only if the route isn't the "account" page
     // where we can link a different wallet so we need to change the account
     // without being disconnected
-    if (!window.location.pathname.includes("/account")) {
+    if (addressChanged && !window.location.pathname.includes("/account")) {
+      console.log("disconnecting", newAccount, prevAccount);
       void disconnect(compilotConfig);
     }
   },

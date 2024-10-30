@@ -1,5 +1,10 @@
-export const formatAddress = (address?: string, showLetters = 4): string => {
+export const formatAddress = (
+  address?: string,
+  showLetters = 4,
+  prefix = 2,
+): string => {
   if (address === undefined) return "...";
-  if (address.length < 2 + 2 * showLetters) return address;
+  console.log((address.length - prefix) / 2, showLetters);
+  if (showLetters >= (address.length - prefix) / 2) return address;
   return `${address.slice(0, 2 + showLetters)}...${address.slice(-showLetters)}`;
 };
