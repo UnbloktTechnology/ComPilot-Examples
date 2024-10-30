@@ -3,7 +3,6 @@ import { Button } from "@/ui/components/Button";
 import {
   useAuthenticate,
   useCustomerStatus,
-  useDisconnect,
   useOpenWidget,
 } from "@compilot/react-sdk";
 import { ConnectWalletButton } from "@/ui/components/ConnectWalletButton";
@@ -41,7 +40,6 @@ export const AirdropPage = () => {
   const redirectToAccount = useRedirectToAccountPage();
   const router = useRouter();
   const routeAddress = router.query.address as string | undefined;
-  const { disconnect } = useDisconnect();
   const { address } = useWalletAddress();
   const isClaimed = useClaimUiState().claim;
   const dataIsLoading = isClaimed.loading;
@@ -51,19 +49,18 @@ export const AirdropPage = () => {
   useEffect(() => {
     const unsubscribe = watchAccount(config, {
       onChange: (newAccount) => {
+        const newAddress = newAccount?.address;
         if (
-          newAccount?.address &&
-          newAccount.address.toLocaleLowerCase() !==
-            routeAddress?.toLocaleLowerCase()
+          newAddress &&
+          newAddress.toLocaleLowerCase() !== routeAddress?.toLocaleLowerCase()
         ) {
-          void disconnect();
-          redirectToCheckWallet(newAccount.address);
+          redirectToCheckWallet(newAddress);
         }
       },
     });
 
     return unsubscribe;
-  }, [config, redirectToCheckWallet, routeAddress, disconnect]);
+  }, [config, redirectToCheckWallet, routeAddress]);
 
   return (
     <AirdropLayout>
@@ -189,7 +186,7 @@ export const AirdropPage = () => {
 
       {uiStep === "claim" && (
         <div className="flex justify-center space-x-4">
-          <LogoutButton variant="primary" label="Use another wallet" />
+          <LogoutButton variant="secondary" label="Use another wallet" />
 
           {authenticate.data === undefined && (
             <Button variant="secondary" disabled isLoading={dataIsLoading}>
@@ -199,7 +196,7 @@ export const AirdropPage = () => {
 
           {authenticate.data === true && (
             <Button
-              variant="secondary"
+              variant="primary"
               disabled={!isCustomerActive || claimMutation.isPending}
               onClick={() => claimMutation.mutate()}
               id="claim-btn"
