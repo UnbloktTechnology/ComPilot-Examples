@@ -186,7 +186,7 @@ export const AirdropPage = () => {
 
       {uiStep === "claim" && (
         <div className="flex justify-center space-x-4">
-          <LogoutButton variant="primary" label="Use another wallet" />
+          <LogoutButton variant="secondary" label="Use another wallet" />
 
           {authenticate.data === undefined && (
             <Button variant="secondary" disabled isLoading={dataIsLoading}>
@@ -196,7 +196,7 @@ export const AirdropPage = () => {
 
           {authenticate.data === true && (
             <Button
-              variant="secondary"
+              variant="primary"
               disabled={!isCustomerActive || claimMutation.isPending}
               onClick={() => claimMutation.mutate()}
               id="claim-btn"
