@@ -54,7 +54,6 @@ export const AirdropPage = () => {
           newAddress &&
           newAddress.toLocaleLowerCase() !== routeAddress?.toLocaleLowerCase()
         ) {
-          debugger;
           redirectToCheckWallet(newAddress);
         }
       },
