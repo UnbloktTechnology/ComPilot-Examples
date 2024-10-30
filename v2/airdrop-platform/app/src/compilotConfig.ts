@@ -2,10 +2,12 @@ import { createConfig, createWeb3AuthAdapter } from "@compilot/react-sdk";
 import { createWagmiWalletAdapter } from "@compilot/web-sdk-wallet-wagmi";
 import { wagmiConfig } from "@/wagmiConfig";
 import { env } from "./env.mjs";
+import { bindCompilotConfigToLocalStorage } from "./sessionStore";
 
 import "@/configureDemoEnv";
 
 export const compilotWalletAdapter = createWagmiWalletAdapter(wagmiConfig);
+
 export const compilotConfig = createConfig({
   logLevel: env.NEXT_PUBLIC_LOG_LEVEL,
   authAdapter: createWeb3AuthAdapter({
@@ -22,3 +24,5 @@ export const compilotConfig = createConfig({
     },
   }),
 });
+
+void bindCompilotConfigToLocalStorage(compilotConfig);

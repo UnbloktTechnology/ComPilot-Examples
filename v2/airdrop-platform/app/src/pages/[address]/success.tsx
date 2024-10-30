@@ -23,7 +23,7 @@ export default function AllocationCheck() {
   const chainId = useChainId();
   const isClaimed = useIsClaimed();
   const amount = getUserAirdropAmount(address);
-  const { symbol } = getAirdropTokenConfig();
+  const { displayName } = getAirdropTokenConfig();
   const redirectToCheckWallet = useRedirectToCheckWallet();
   const redirectToAccountPage = useRedirectToAccountPage();
   const title = isClaimed?.isLoading
@@ -35,7 +35,7 @@ export default function AllocationCheck() {
   ) : (
     <>
       Congrats! The allocated <AirdropTokenIcon />{" "}
-      {formatAirdropTokenAmount(amount)} ${symbol} were transferred to the
+      {formatAirdropTokenAmount(amount)} ${displayName} were transferred to the
       wallet <ChainIcon chainId={chainId} /> {formatAddress(address)}.
     </>
   );

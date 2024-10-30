@@ -10,12 +10,12 @@ interface AddTokenButtonProps {
 
 export const AddTokenButton = ({ label, variant }: AddTokenButtonProps) => {
   const addToken = useAddToken();
-  const { symbol } = getAirdropTokenConfig();
+  const { displayName } = getAirdropTokenConfig();
   return (
     <Button variant={variant ?? "secondary"} onClick={addToken}>
       {label ?? (
         <>
-          Add <AirdropTokenIcon /> ${symbol} to your wallet
+          Add <AirdropTokenIcon /> ${displayName} to your wallet
         </>
       )}
     </Button>

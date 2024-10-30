@@ -35,7 +35,7 @@ export const AirdropPage = () => {
   const claimMutation = useClaimMutation();
   const authenticate = useAuthenticate();
   const { switchChain } = useSwitchChain();
-  const { symbol } = getAirdropTokenConfig();
+  const { displayName } = getAirdropTokenConfig();
   const isCustomerActive = customerData.data === "Active";
   const redirectToCheckWallet = useRedirectToCheckWallet();
   const redirectToAccount = useRedirectToAccountPage();
@@ -226,7 +226,8 @@ export const AirdropPage = () => {
       {uiStep === "done" && (
         <div className="flex flex-col justify-center space-y-4">
           <p>
-            You already claimed your {getUserAirdropAmount(address)} {symbol}
+            You already claimed your {getUserAirdropAmount(address)}{" "}
+            {displayName}
           </p>
           <div className="flex justify-center space-x-4">
             {isClaimed.claimed ? (

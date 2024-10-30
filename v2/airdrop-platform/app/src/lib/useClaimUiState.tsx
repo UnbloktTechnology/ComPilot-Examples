@@ -14,6 +14,7 @@ import { AirdropTokenIcon } from "@/ui/components/icon/AirdropTokenIcon";
 import { ChainIcon } from "@/ui/components/icon/ChainIcon";
 import { formatAddress } from "./formatAddress";
 import { useIsClaimed } from "./useIsClaimed";
+import { useIsLoadingStoredSession } from "@/sessionStore";
 
 export type UiState = {
   // wallet can be set but not connected as it's present in the url
@@ -123,12 +124,19 @@ export const useTitles = (): {
   title: React.ReactNode;
   subtitle: React.ReactNode;
 } => {
+  const isLoadingStoredSession = useIsLoadingStoredSession();
   const uiState = useClaimUiState();
   const { address } = useWalletAddress();
   const allowance = address ? getUserAirdropAmount(address) : 0n;
   const isClaimed = useIsClaimed();
-  const { symbol } = getAirdropTokenConfig();
+  const { displayName } = getAirdropTokenConfig();
   const chainId = useChainId();
+
+  if (isLoadingStoredSession)
+    return {
+      title: "Loading...",
+      subtitle: "Please wait while we authenticate you again",
+    };
 
   if (!uiState.wallet.address)
     return {
@@ -182,7 +190,8 @@ export const useTitles = (): {
         <>
           Congrats, the allocation for the wallet{" "}
           <ChainIcon chainId={chainId} /> {formatAddress(address)} is{" "}
-          <AirdropTokenIcon /> {formatAirdropTokenAmount(allowance)} ${symbol}.
+          <AirdropTokenIcon /> {formatAirdropTokenAmount(allowance)} $
+          {displayName}.
         </>
       ),
     };
@@ -193,8 +202,9 @@ export const useTitles = (): {
       subtitle: (
         <>
           Please switch to {getDeploymentChain().name} to claim{" "}
-          <AirdropTokenIcon /> {formatAirdropTokenAmount(allowance)} ${symbol}{" "}
-          for <ChainIcon chainId={chainId} /> {formatAddress(address)}.
+          <AirdropTokenIcon /> {formatAirdropTokenAmount(allowance)} $
+          {displayName} for <ChainIcon chainId={chainId} />{" "}
+          {formatAddress(address)}.
         </>
       ),
     };
@@ -212,8 +222,9 @@ export const useTitles = (): {
       subtitle: (
         <>
           Now we need to verify your identity before you can claim{" "}
-          <AirdropTokenIcon /> {formatAirdropTokenAmount(allowance)} {symbol}{" "}
-          for <ChainIcon chainId={chainId} /> {formatAddress(address)}.
+          <AirdropTokenIcon /> {formatAirdropTokenAmount(allowance)}{" "}
+          {displayName} for <ChainIcon chainId={chainId} />{" "}
+          {formatAddress(address)}.
         </>
       ),
     };
@@ -231,7 +242,8 @@ export const useTitles = (): {
         <>
           Congrats, the allocation for the wallet{" "}
           <ChainIcon chainId={chainId} /> {formatAddress(address)} is{" "}
-          <AirdropTokenIcon /> {formatAirdropTokenAmount(allowance)} ${symbol}.
+          <AirdropTokenIcon /> {formatAirdropTokenAmount(allowance)} $
+          {displayName}.
         </>
       ),
     };
@@ -244,8 +256,8 @@ export const useTitles = (): {
 
   if (!uiState.claim.claimed)
     return {
-      title: `Let's claim some $${symbol}`,
-      subtitle: `You can claim ${formatAirdropTokenAmount(allowance)} $${symbol} now.`,
+      title: `Let's claim some $${displayName}`,
+      subtitle: `You can claim ${formatAirdropTokenAmount(allowance)} $${displayName} now.`,
     };
 
   return {

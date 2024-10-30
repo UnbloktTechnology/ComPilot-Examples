@@ -31,6 +31,7 @@ import { ThumbUpIcon } from "@/ui/components/icon/ThumbUpIcon";
 import { useIsClaimed } from "@/lib/useIsClaimed";
 import { useClaimMutation } from "@/lib/useClaimMutation";
 import { AddressCheckedIcon } from "@/ui/components/icon/AddressCheckedIcon";
+import { useIsLoadingStoredSession } from "@/sessionStore";
 
 const AccountPageContext = createContext<{
   modalOpen: boolean;
@@ -51,6 +52,7 @@ const AccountPageContext = createContext<{
 const AccountPageProvider = ({ children }: { children: React.ReactNode }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [forAddress, setForAddress] = useState<Address>("0x00");
+  const isLoadingStoredSession = useIsLoadingStoredSession();
 
   const start = useCallback(
     (address: Address) => {
@@ -68,6 +70,10 @@ const AccountPageProvider = ({ children }: { children: React.ReactNode }) => {
     () => ({ modalOpen, forAddress, start, close }),
     [modalOpen, forAddress, start, close],
   );
+
+  if (isLoadingStoredSession) {
+    return <Spinner />;
+  }
 
   return (
     <AccountPageContext.Provider value={value}>
@@ -282,7 +288,7 @@ export const AddressClaimer = ({ address }: { address: Address }) => {
         <div className="inline-flex items-start justify-start gap-2 self-stretch">
           <div className="text-sm font-medium text-slate-600">
             {formatAirdropTokenAmount(amountEligible)} $
-            {getAirdropTokenConfig().symbol} allocated{" "}
+            {getAirdropTokenConfig().displayName} allocated{" "}
             {isClaimedQuery.data === true ? "and claimed" : ""}
           </div>
         </div>

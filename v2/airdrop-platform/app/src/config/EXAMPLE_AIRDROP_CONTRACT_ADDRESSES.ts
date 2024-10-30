@@ -26,7 +26,12 @@ export const getAirdropTokenConfig = () => {
   if (!tokenAddress) {
     throw new Error("Token address not found");
   }
-  return { address: tokenAddress, symbol: "PEAQ-TESTNET", decimals: 18 };
+  return {
+    address: tokenAddress,
+    symbol: "PEAQ-TESTNET",
+    displayName: "PEAQ",
+    decimals: 18,
+  };
 };
 
 export const getDeploymentChain = () => {

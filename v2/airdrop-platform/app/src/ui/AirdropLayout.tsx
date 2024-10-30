@@ -5,6 +5,8 @@ import { Footer } from "./components/Footer";
 import { useTitles } from "@/lib/useClaimUiState";
 import { DebugUiState } from "./components/DebugUiState";
 import { WalletMenu } from "./components/WalletMenu";
+import { useIsLoadingStoredSession } from "@/sessionStore";
+import { Spinner } from "./components/Spinner";
 
 interface AirdropLayoutProps {
   showTitles?: boolean;
@@ -19,10 +21,11 @@ export const AirdropLayout = ({
   subtitleOverwrite,
   children,
 }: AirdropLayoutProps) => {
+  const isLoadingStoredSession = useIsLoadingStoredSession();
   const { title, subtitle } = useTitles();
   return (
     <main className={`${stylesPeaq.main} bg-white !p-0`}>
-      <header className="flex w-full items-center justify-between p-4 pb-0">
+      <header className="flex h-16 w-full items-center justify-between p-4 pb-0">
         <Image
           src="/images/peaq-logo.png"
           alt="Logo"
@@ -54,7 +57,7 @@ export const AirdropLayout = ({
                 </>
               )}
               <div className="flex flex-col items-center justify-center gap-4 pt-4">
-                {children}
+                {isLoadingStoredSession ? <Spinner /> : children}
               </div>
               <DebugUiState />
               <a className="opacity-40" href="#">
