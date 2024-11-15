@@ -61,6 +61,10 @@ const EXAMPLE_AIRDROP_CONTRACT_ADDRESSES: {
     tokenAddress: "0x6Febb483511702Ccf3a0f5a0b503C8C3D6Dd383A",
     merkleDistributorAddress: "0xefAd1faC927aBc388E8bFbEf6b97509cdb9d65BF",
   },
+  "test-dev-3": {
+    tokenAddress: "0x6Febb483511702Ccf3a0f5a0b503C8C3D6Dd383A",
+    merkleDistributorAddress: "0xefAd1faC927aBc388E8bFbEf6b97509cdb9d65BF",
+  },
   dev: {
     tokenAddress: "0xecbBA2f4370818e7129a8cE2F7402D7860C1dB0E",
     merkleDistributorAddress: "0xE322d2d90a6327533032f45410E1c47e862ef868",
