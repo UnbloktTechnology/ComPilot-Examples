@@ -13,10 +13,10 @@
     "prettier:fix": "prettier 'src/' --write"
   },
   "dependencies": {
-    "@compilot/js-sdk": "2.3.42-dev",
-    "@compilot/merkle-tree-js": "2.3.42-dev",
-    "@compilot/react-sdk": "2.3.42-dev",
-    "@compilot/web-sdk-wallet-wagmi": "2.3.42-dev",
+    "@compilot/js-sdk": "^2.15.2",
+    "@compilot/merkle-tree-js": "^2.15.2",
+    "@compilot/react-sdk": "^2.15.2",
+    "@compilot/web-sdk-wallet-wagmi": "^2.15.2",
     "@rainbow-me/rainbowkit": "^2.0.5",
     "@t3-oss/env-nextjs": "^0.6.0",
     "@tanstack/react-query": "^5.29.2",
