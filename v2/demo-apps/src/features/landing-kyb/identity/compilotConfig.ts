@@ -11,16 +11,11 @@ export const generateChallengeKYB = async (params: any) => {
         });
 
         if (!res.ok) {
-            const errorData = await res.json();
-            console.error('Challenge generation failed:', errorData);
             throw new Error('Failed to generate challenge');
         }
 
-        const data = await res.json();
-        console.log('Challenge generated:', data);
-        return data;
+        return await res.json();
     } catch (error) {
-        console.error('Error generating challenge:', error);
         throw error;
     }
 };

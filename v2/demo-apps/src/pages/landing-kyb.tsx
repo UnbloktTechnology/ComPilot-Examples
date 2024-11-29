@@ -83,22 +83,10 @@ const HomeContent = () => {
 
     const handleClick = async () => {
         try {
-            console.log('🟨 CLICK DETECTED');
-
-            // First disconnect
             await disconnect();
-            console.log('🟨 Disconnect successful');
-
-            // Small delay to ensure clean state
             await new Promise(resolve => setTimeout(resolve, 100));
-
-            // Then open widget
-            console.log('🟨 Opening widget with config:', compilotConfig);
-            const widgetResponse = await openWidget.openWidget();
-
-            console.log('🟨 Widget opened with response:', widgetResponse);
+            await openWidget.openWidget();
         } catch (error) {
-            console.error('🟨 Error in handleClick:', error);
             await disconnect();
         }
     };

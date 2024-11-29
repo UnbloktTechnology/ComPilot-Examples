@@ -9,13 +9,11 @@ export default async function handler(
 ) {
     try {
         const { address } = req.body;
-        console.log('Received request for address:', address);
 
         if (!process.env.COMPILOT_API_KEY_LANDING_KYB) {
             throw new Error('COMPILOT_API_KEY_LANDING_KYB is not defined');
         }
 
-        console.log('Creating SDK client...');
         const apiClient = createSdk({
             apiKey: process.env.COMPILOT_API_KEY_LANDING_KYB,
         });
@@ -24,19 +22,16 @@ export default async function handler(
             throw new Error('COMPILOT_WORKFLOW_ID_LANDING_KYB is not defined');
         }
 
-        console.log('Creating Web3 challenge...');
         const challenge = await apiClient.createWeb3Challenge({
             workflowId: process.env.COMPILOT_WORKFLOW_ID_LANDING_KYB,
             address,
             blockchainId: EvmChainId.parse('1'),
             namespace: 'eip155',
-            origin: 'http://localhost:3120',
+            origin: process.env.COMPILOT_ORIGIN_LANDING_KYB ?? '',
         });
-        console.log('Challenge created successfully:', challenge);
 
         return res.status(200).json(challenge);
     } catch (error) {
-        console.error('Error details:', error);
         return res.status(500).json({ error: 'Failed to create challenge' });
     }
 }
