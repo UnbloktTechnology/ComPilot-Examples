@@ -94,38 +94,79 @@ const HomeContent = () => {
     return (
         <Layout>
             <div className="absolute top-0 z-20 h-screen w-screen bg-white">
-                <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full text-center">
-                    <div className="mx-auto flex w-[800px] flex-col gap-4 text-center">
-                        <h1 className="text-[64px] font-bold leading-[72px] text-black">
-                            {companyName} Business Verification
-                        </h1>
+                <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full">
+                    <div className="mx-auto w-[1200px] flex gap-8">
+                        {/* Left Column - Title and Button */}
+                        <div className="w-[300px] flex flex-col items-center pt-6">
+                            <h1 className="text-[24px] font-bold leading-[32px] text-black">
+                                {companyName} Business Verification
+                            </h1>
 
-                        <div className="text-gray-600">
-                            <h2 className="text-2xl font-semibold mb-4">
-                                Complete Your KYB Process
-                            </h2>
-                            <div className="flex flex-col gap-2">
-                                <h6>Verify your company&apos;s identity and structure</h6>
-                                <h6>Submit required business documentation</h6>
-                                <h6>Confirm beneficial ownership information</h6>
-                            </div>
+                            <button
+                                type="button"
+                                className="mt-8 h-14 w-full rounded-2xl border-2 border-[#E6D5F7] 
+                                         bg-white text-center text-xl text-black 
+                                         hover:bg-[#E6D5F7] transition-all duration-300"
+                                onClick={() => {
+                                    void handleClick();
+                                }}
+                            >
+                                Start Verification
+                            </button>
                         </div>
 
-                        <button
-                            type="button"
-                            className="mx-auto mt-11 h-14 w-80 rounded-2xl border-2 border-[#E6D5F7] 
-                                     bg-white text-center text-xl text-black 
-                                     hover:bg-[#E6D5F7] transition-all duration-300"
-                            onClick={() => {
-                                void handleClick();
-                            }}
-                        >
-                            Start Verification
-                        </button>
+                        {/* Right Column - Documentation Requirements */}
+                        <div className="flex-1 text-left bg-gray-50 p-6 rounded-lg">
+                            <h3 className="text-xl font-bold mb-4 text-blue-900">Required Documentation for KYB</h3>
+
+                            <div className="bg-blue-50 p-4 rounded-md mb-6">
+                                <p className="text-blue-800 font-medium">
+                                    Please make sure to provide documentation for:
+                                </p>
+                                <ul className="list-disc ml-5 mt-2 text-blue-800">
+                                    <li>Company Registration</li>
+                                    <li>Official Address</li>
+                                    <li>Ownership Structure</li>
+                                </ul>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div>
+                                    <h4 className="font-semibold text-blue-800 mb-2">
+                                        1. Company Registration (Any one): We want to check that the company is properly registered and its address.
+                                    </h4>
+                                    <ul className="list-disc ml-5 space-y-1">
+                                        <li>Certificate of incorporation</li>
+                                        <li>State company registry excerpt</li>
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <h4 className="font-semibold text-blue-800 mb-2">
+                                        2. Ownership Proof (Any one): Important note: We are going to check the company structure, so make sure that UBO's names appear on the documents you provide.
+                                    </h4>
+                                    <ul className="list-disc ml-5 space-y-1">
+                                        <li>Articles of incorporation</li>
+                                        <li>Memorandum of association</li>
+                                        <li>UBO (Ultimate Beneficial Ownership) registry excerpt</li>
+                                        <li>Certificate of incumbency</li>
+                                    </ul>
+                                </div>
+
+                                <div className="bg-yellow-50 p-4 rounded-md">
+                                    <h4 className="font-semibold text-yellow-800">Important Notes:</h4>
+                                    <ul className="list-disc ml-5 space-y-1 text-yellow-800">
+                                        <li>All ownership documents must be less than 12 months old</li>
+                                        <li>We do not accept invoices, receipts, or document screenshots</li>
+                                        <li>All individuals, UBOs with more than 25% ownership, and directors are expected to complete KYC, which includes uploading their ID and a liveliness check (selfie).</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </Layout >
+        </Layout>
     );
 };
 
