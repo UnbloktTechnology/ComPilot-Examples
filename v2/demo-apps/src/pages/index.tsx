@@ -107,6 +107,15 @@ const PROJECTS: AppCardProps[] = [
     poweredBy: "/images/poweredBy/green-bank.svg",
   },
   {
+    url: "/landing-kyb-not-wallet",
+    name: "KYB without wallet",
+    description:
+      "Short description for this app example that we showcase here. Better to have a few lines of text, so not very short if possible",
+    image: "/images/apps/banking.svg",
+    tags: [VCV_TAG, OFF_TAG, AS_TAG],
+    poweredBy: "/images/poweredBy/green-bank.svg",
+  },
+  {
     url: "/bank-web3",
     name: "Web3 Banking",
     description:
