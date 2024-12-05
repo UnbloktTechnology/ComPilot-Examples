@@ -143,7 +143,7 @@ const HomeContent = () => {
 
                                 <div>
                                     <h4 className="font-semibold text-blue-800 mb-2">
-                                        2. Ownership Proof (Any one): Important note: We are going to check the company structure, so make sure that UBO's names appear on the documents you provide.
+                                        2. Ownership Proof (Any one): We are going to check the company structure, so make sure that UBO's names appear on the documents you provide.
                                     </h4>
                                     <ul className="list-disc ml-5 space-y-1">
                                         <li>Articles of incorporation</li>
