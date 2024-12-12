@@ -144,6 +144,30 @@ export const env = createEnv({
       .describe(
         "The workflow ID for the ComPilot API -> https://dashboard.compilot.ai/: ComPilot Multichain Demo dApp",
       ),
+
+    COMPILOT_API_KEY_LANDING_KYB: z
+      .string()
+      .describe(
+        "The API key for the ComPilot API -> https://dashboard.compilot.ai/: ComPilot Landing KYB Demo App",
+      ),
+
+    COMPILOT_WORKFLOW_ID_LANDING_KYB: z
+      .string()
+      .describe(
+        "The workflow ID for the ComPilot API -> https://dashboard.compilot.ai/: ComPilot Landing KYB Demo App",
+      ),
+
+    COMPILOT_API_KEY_NO_WALLET_KYB: z
+      .string()
+      .describe(
+        "The API key for the ComPilot API -> https://dashboard.compilot.ai/: ComPilot no wallet KYB Demo App",
+      ),
+
+    COMPILOT_WORKFLOW_ID_NO_WALLET_KYB: z
+      .string()
+      .describe(
+        "The workflow ID for the ComPilot API -> https://dashboard.compilot.ai/: ComPilot no wallet KYB Demo App",
+      ),
   },
 
   /**
@@ -216,6 +240,14 @@ export const env = createEnv({
       process.env.COMPILOT_API_KEY_MULTICHAIN_DEMO,
     COMPILOT_WORKFLOW_ID_MULTICHAIN_DEMO:
       process.env.COMPILOT_WORKFLOW_ID_MULTICHAIN_DEMO,
+
+    COMPILOT_API_KEY_LANDING_KYB: process.env.COMPILOT_API_KEY_LANDING_KYB,
+    COMPILOT_WORKFLOW_ID_LANDING_KYB:
+      process.env.COMPILOT_WORKFLOW_ID_LANDING_KYB,
+
+    COMPILOT_API_KEY_NO_WALLET_KYB: process.env.COMPILOT_API_KEY_NO_WALLET_KYB,
+    COMPILOT_WORKFLOW_ID_NO_WALLET_KYB:
+      process.env.COMPILOT_WORKFLOW_ID_NO_WALLET_KYB,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
