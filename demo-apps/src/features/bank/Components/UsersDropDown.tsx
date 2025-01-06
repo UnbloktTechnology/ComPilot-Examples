@@ -11,6 +11,7 @@ interface IDropDown {
   onSelect: (item: TestUser) => void;
 }
 
+//TODO: remove that component
 export const UsersDropDown = ({
   items,
   selected,
