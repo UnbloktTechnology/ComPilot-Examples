@@ -10,6 +10,7 @@ import { getTxAuthDataSignature } from "@compilot/react-sdk";
 import { compilotConfig } from "@/compilotConfig";
 import { sendTransaction, waitForTransactionReceipt } from "@wagmi/core";
 import { wagmiConfig } from "@/wagmiConfig";
+import { env } from "@/env.mjs";
 
 const balanceMap = parseBalanceMap({ balances: CUSTOMERS_BALANCE_MAP });
 
@@ -49,6 +50,7 @@ export const claimToken = async (props: { userAddress: Address }) => {
   const distributorAddress = getDistributorContractAddress();
 
   const signatureResponse = await getTxAuthDataSignature(compilotConfig, {
+    workflowId: env.NEXT_PUBLIC_COMPILOT_SIG_GATING_WORKFLOW_ID_KYC_AIRDROP,
     namespace: "eip155",
     userAddress: userAddress,
     contractAbi: Array.from(MerkleDistributorAbi),

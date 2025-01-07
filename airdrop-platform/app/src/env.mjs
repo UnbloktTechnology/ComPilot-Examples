@@ -33,6 +33,7 @@ export const env = createEnv({
     NEXT_PUBLIC_SEPOLIA_HTTP_PROVIDER_URL: z
       .string()
       .describe("Sepolia http RPC url"),
+    NEXT_PUBLIC_COMPILOT_SIG_GATING_WORKFLOW_ID_KYC_AIRDROP: z.string(),
   },
 
   /**
@@ -50,6 +51,8 @@ export const env = createEnv({
     NEXT_PUBLIC_SEPOLIA_HTTP_PROVIDER_URL:
       process.env.NEXT_PUBLIC_SEPOLIA_HTTP_PROVIDER_URL,
     POSTGRES_URL: process.env.POSTGRES_URL,
+    NEXT_PUBLIC_COMPILOT_SIG_GATING_WORKFLOW_ID_KYC_AIRDROP:
+      process.env.NEXT_PUBLIC_COMPILOT_SIG_GATING_WORKFLOW_ID_KYC_AIRDROP,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.

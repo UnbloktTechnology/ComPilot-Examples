@@ -2,7 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import type { TestUser } from "@/appConfig";
 
 export const useMockBankAuth = () => {
   const authStore = useMockAuthStore((state) => state);
@@ -14,7 +13,7 @@ export const useMockBankAuth = () => {
   });
 
   const authenticate = useMutation({
-    mutationFn: async (variables: { user: TestUser }) => {
+    mutationFn: async (variables: { user: AliceForWeb2Auth }) => {
       return {
         testUser: variables.user,
       };
@@ -35,10 +34,16 @@ export const useMockBankAuth = () => {
   };
 };
 
+export interface AliceForWeb2Auth {
+  readonly id: string;
+  readonly name: "Alice";
+  readonly avatar: "alice-user";
+}
+
 interface IAuthStore {
   isAuthenticated: boolean;
-  user?: TestUser;
-  authenticate: (user: TestUser) => void;
+  user?: AliceForWeb2Auth;
+  authenticate: (user: AliceForWeb2Auth) => void;
   logout: () => void;
 }
 
@@ -47,7 +52,7 @@ export const useMockAuthStore = create<IAuthStore>()(
     persist(
       immer((set) => ({
         isAuthenticated: false,
-        authenticate: (user: TestUser) => {
+        authenticate: (user: AliceForWeb2Auth) => {
           set((state) => {
             state.isAuthenticated = true;
             state.user = user;

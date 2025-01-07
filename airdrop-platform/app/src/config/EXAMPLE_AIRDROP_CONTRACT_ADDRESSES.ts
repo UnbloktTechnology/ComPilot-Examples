@@ -35,7 +35,11 @@ export const getAirdropTokenConfig = () => {
 };
 
 export const getDeploymentChain = () => {
-  return { id: 80002, name: "Polygon Amoy", parsedId: EvmChainId.parse(80002) };
+  return {
+    id: 80002,
+    name: "Polygon Amoy",
+    parsedId: EvmChainId.parse("80002"),
+  };
 };
 
 // Contract addresses for different environments and chains
