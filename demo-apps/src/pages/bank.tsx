@@ -8,6 +8,8 @@ import { ComPilotProvider, useCustomerStatus } from "@compilot/react-sdk";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { compilotConfig } from "@/features/bank/identity/compilotConfig";
+import { useMockBankAuth } from "@/features/bank/identity/useMockBankAuth";
+import useTestUser from "@/features/bank/identity/useTestUser";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +26,9 @@ const Home = () => {
 };
 
 const HomeContent = () => {
+  const { authenticate } = useMockBankAuth();
+  const testUser = useTestUser();
+
   const { openModal, close } = useGlobalModals((state) => ({
     openModal: state.open,
     close: state.close,
@@ -39,7 +44,7 @@ const HomeContent = () => {
   }, [isCompliant, close]);
 
   const onClickLogOn = () => {
-    console.log("openModal");
+    authenticate.mutate({ user: testUser });
     openModal(
       "LogOnModal",
       {

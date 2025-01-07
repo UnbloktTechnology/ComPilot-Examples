@@ -1,25 +1,15 @@
 import React, { useState } from "react";
 
-import { UsersDropDown } from "../Components/UsersDropDown";
-import { TEST_USERS, type TestUser } from "@/appConfig";
-import { toast } from "react-toastify";
 import { Icon } from "../Components/Icon";
-import { Button } from "../Components/Button";
-import { useMockBankAuth } from "./useMockBankAuth";
 import { IdentityVerifyButton } from "./IdentityVerifyButton";
+import useTestUser from "./useTestUser";
 
 export const LogOnModal = () => {
   const [showMsg, setShowMsg] = useState(true);
   const [helpMsg, setHelpMsg] = useState(
     "To open an account you will need to verify your identity first",
   );
-  const [userSelected, setUserSelected] = useState<TestUser>();
-  const { authenticate, user, isAuthenticated } = useMockBankAuth();
-
-  const handleUserSelected = (user: TestUser) => {
-    setUserSelected(user);
-  };
-
+  const testUser = useTestUser();
   const changeHelperText = () => {
     if (helpMsg.includes("verify your identity")) {
       setHelpMsg(
@@ -59,34 +49,23 @@ export const LogOnModal = () => {
       </div>
 
       <div className="flex w-full flex-col items-center">
-        <UsersDropDown
-          items={TEST_USERS}
-          selected={userSelected}
-          onSelect={handleUserSelected}
-          className="relative w-full"
-          classNameButton="w-full flex justify-between border-[#D0D5DD]"
-          classNameList="bg-white"
-        />
+        <div className={`relative flex w-auto w-full items-center`}>
+          <div
+            className={`flex inline-flex w-full items-center justify-between gap-3 border-[#D0D5DD] px-3 py-2 shadow-sm`}
+          >
+            {testUser?.avatar ? (
+              <>
+                <Icon icon={testUser?.avatar} />
+                <span className="w-full text-left">{testUser?.name}</span>
+              </>
+            ) : (
+              <span>Select user</span>
+            )}
+          </div>
+        </div>
       </div>
 
-      {user?.id !== userSelected?.id && (
-        <Button
-          disabled={typeof userSelected === "undefined"}
-          className={`ml-auto ${
-            typeof userSelected === "undefined" ? "opacity-50" : ""
-          }`}
-          onClick={() =>
-            userSelected
-              ? authenticate.mutate({ user: userSelected })
-              : toast("Please select a user")
-          }
-        >
-          Log in
-        </Button>
-      )}
-      {user?.id === userSelected?.id && isAuthenticated && (
-        <IdentityVerifyButton />
-      )}
+      <IdentityVerifyButton />
 
       <div className="flex w-full flex-col justify-start gap-2 text-base">
         <button

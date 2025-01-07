@@ -12,7 +12,7 @@ export const Button: React.FC<IButton> = forwardRef<HTMLButtonElement, IButton>(
         ref={ref}
         type="submit"
         {...props}
-        className={`cursor-pointer text-base  font-normal ${props.className}`}
+        className={`cursor-pointer bg-[#77B212] px-6 py-4 text-base  font-normal text-white ${props.className}`}
       >
         {props.children}
       </button>
