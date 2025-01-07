@@ -12,8 +12,6 @@ export const Header = ({ onClickLogOn }: { onClickLogOn: () => void }) => {
     { title: "Help", subtitle: "Service & security" },
   ];
 
-  console.log(onClickLogOn);
-
   return (
     <div className="flex w-full flex-col items-center">
       <div className="bold flex h-9 w-full items-center justify-between bg-[#000] px-[105px] text-white">
