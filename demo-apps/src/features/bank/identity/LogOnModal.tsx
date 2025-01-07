@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 
 import { Icon } from "../Components/Icon";
-import { Button } from "../Components/Button";
-import { useMockBankAuth } from "./useMockBankAuth";
 import { IdentityVerifyButton } from "./IdentityVerifyButton";
 import useTestUser from "./useTestUser";
 
@@ -12,8 +10,6 @@ export const LogOnModal = () => {
     "To open an account you will need to verify your identity first",
   );
   const testUser = useTestUser();
-  const { authenticate, user, isAuthenticated } = useMockBankAuth();
-
   const changeHelperText = () => {
     if (helpMsg.includes("verify your identity")) {
       setHelpMsg(
