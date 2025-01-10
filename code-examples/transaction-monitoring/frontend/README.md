@@ -31,15 +31,11 @@ yarn install
 cp .env.example .env.local
 ```
 
-3. Update `.env.local` with your configuration:
+3. Update `.env.local` with your configuration (depend on your backend):
 ```env
-# For TypeScript backend
 NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
 NEXT_PUBLIC_WS_URL=ws://localhost:8080
 
-# For Python backend
-# NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
-# NEXT_PUBLIC_WS_URL=ws://localhost:3001
 
 NEXT_PUBLIC_CUSTOMER_ID=your_customer_id
 ```
@@ -55,18 +51,42 @@ yarn dev
 
 ```
 src/
-├── components/          # React components
-│   ├── DevMode.tsx     # Transaction testing interface
-│   └── ...
-├── lib/                # Utilities and constants
-├── types/              # TypeScript definitions
-└── app/                # Next.js app router
+├── app/
+│   └── page.tsx                    # Mode switcher (Dev/UX)
+├── components/
+│   ├── TransactionLifecycleInspector.tsx  # Developer mode interface
+│   ├── UXDemo.tsx                  # User mode interface
+│   ├── lifecycleinspectorsection/  # Developer mode components
+│   └── uxdemosection/             # User mode components
+├── hooks/
+│   ├── useTransactionApi.ts       # API integration
+│   └── useTransactionWebSocket.ts # Real-time updates
+├── lib/
+│   └── transaction-examples.ts    # Transaction templates
+└── types/
+    ├── transaction.ts            # Transaction type definitions
+    └── devmode.ts               # Developer mode types
 ```
+
+## Available Modes
+
+### Transaction Lifecycle Inspector (Developer Mode)
+- JSON editor for transaction payload
+- Real-time API response viewing
+- Detailed webhook logs
+- Transaction status monitoring
+
+### UX Demo (User Mode)
+- Clean interface for transaction submission
+- Support for:
+  - Crypto: Send/Receive ETH, MATIC
+  - Fiat: Deposit/Withdraw EUR, USD
+- Real-time status updates
+- Transaction history view
 
 ## Documentation
 
 - [ComPilot Documentation](https://docs.compilot.ai)
-- [Transaction Monitoring Guide]()
 - [API Reference](https://docs.compilot.ai/developing/api/)
 
 ## Related

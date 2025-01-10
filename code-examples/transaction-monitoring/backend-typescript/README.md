@@ -7,9 +7,9 @@ This example demonstrates how to build a backend server that handles transaction
 
 - Express.js REST API for transaction submission
 - WebSocket server for real-time status updates
-- Webhook handler for ComPilot callbacks
+- Webhook handler with SVIX signature verification
 - Support for both Crypto and Fiat transactions
-- Transaction status tracking
+- Transaction status tracking and broadcasting
 
 ## Prerequisites
 
@@ -18,11 +18,29 @@ This example demonstrates how to build a backend server that handles transaction
 - Node.js and npm/yarn installed
 - ngrok for webhook testing
 
+## Project Structure
+
+```
+src/
+├── controllers/
+│   ├── WebhookController.ts    # Webhook handling and verification
+│   └── transactions.ts         # Transaction submission
+├── services/
+│   └── compilot.ts            # ComPilot API integration
+├── routes/
+│   ├── transactions.ts        # Transaction routes
+│   └── webhookRoutes.ts       # Webhook routes
+├── websocket/
+│   └── index.ts              # WebSocket server implementation
+└── types/
+    └── transaction.ts        # Type definitions
+```
+
 ## Getting Started
 
 1. Install dependencies:
 ```bash
-yarn/npm install
+yarn install
 ```
 
 2. Set up environment variables:
@@ -36,13 +54,16 @@ cp .env.example .env
 COMPILOT_API_URL=https://api.compilot.ai
 COMPILOT_API_KEY=your_api_key
 
-# Server Configuration
-PORT=8080
-NODE_ENV=development
-
 # Webhook Configuration
 WEBHOOK_SECRET=your_webhook_secret
 WEBHOOK_URL=https://[your-ngrok-url]/api/webhooks/compilot
+
+# Workflow ID
+COMPILOT_TMS_WORKFLOW_ID=your_workflow_id
+
+# Server Configuration
+PORT=8080
+NODE_ENV=development
 ```
 
 4. Start ngrok tunnel:
@@ -52,31 +73,41 @@ ngrok http 8080
 
 5. Update the WEBHOOK_URL in `.env` with your ngrok URL
 
-6. Build and start the server:
+6. Start the server:
 ```bash
-yarn build
-yarn start
-```
-
-## Project Structure
-
-```
-src/
-├── controllers/        # Request handlers
-│   ├── transactions.ts # Transaction submission
-│   └── webhooks.ts    # Webhook processing
-├── services/          # Business logic
-│   └── compilot.ts    # ComPilot API integration
-├── routes/            # API routes
-├── types/            # TypeScript definitions
-└── websocket/        # WebSocket handling
+yarn dev
 ```
 
 ## API Endpoints
 
-- `POST /api/transactions` - Submit a new transaction
-- `POST /api/webhooks/compilot` - Webhook endpoint for status updates
-- `WS /ws` - WebSocket endpoint for real-time updates
+### Transaction Submission
+```http
+POST /api/workflows/:workflowId/transactions
+Content-Type: application/json
+
+{
+  "transactionType": "crypto",
+  "transactionSubType": "wallet transfer",
+  "transactionInfo": {
+    "direction": "IN",
+    "amount": 0.5,
+    "currencyCode": "ETH"
+  }
+  // ... see transaction.ts for full schema
+}
+```
+
+### Webhook Endpoint
+```http
+POST /api/webhooks/compilot
+```
+Handles ComPilot webhook events with SVIX signature verification.
+
+### WebSocket
+```
+WS /ws
+```
+Provides real-time transaction status updates to connected clients.
 
 ## Documentation
 

@@ -1,9 +1,13 @@
-ComPilot Transaction Monitoring Example
-====================================
+# ComPilot Transaction Monitoring Example
 
-This example demonstrates how to build a complete transaction monitoring system using ComPilot's API. It includes a frontend interface and two interchangeable backend implementations (TypeScript and Python).
+This example demonstrates how to implement transaction monitoring using ComPilot's API. It includes:
 
-## Architecture Overview
+- Real-time transaction status updates via WebSocket
+- Webhook handling with signature verification
+- Frontend visualization of transaction status and history
+- Example implementations in both TypeScript and Python
+
+## Structure
 
 ```
                                     ┌─────────────────┐
