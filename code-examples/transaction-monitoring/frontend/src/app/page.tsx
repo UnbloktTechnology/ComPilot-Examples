@@ -1,25 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import TransactionPage from '@/components/TransactionPage';
-import DevMode from '@/components/DevMode';
+import TransactionLifeCycleInspector from '@/components/TransactionLifecycleInspector';
+import TransactionPage from '@/components/UXDemo';
 
-export default function Home() {
-  const [isDevMode, setIsDevMode] = useState(false);
+const Page = () => {
+  const [isTransactionLifeCycleInspector, setIsDevMode] = useState(true); // Default to DevMode
 
   return (
     <>
-      {isDevMode ? <DevMode /> : <TransactionPage />}
+      {isTransactionLifeCycleInspector ? <TransactionLifeCycleInspector /> : <TransactionPage />}
       <a
         href="#"
         onClick={(e) => {
           e.preventDefault();
-          setIsDevMode(!isDevMode);
+          setIsDevMode(!isTransactionLifeCycleInspector);
         }}
         className="fixed bottom-4 right-4 bg-[#2C2F36] hover:bg-[#363A41] text-gray-300 px-4 py-2 rounded-lg text-sm"
       >
-        {isDevMode ? 'UX Mode' : 'Developer Mode'}
+        {isTransactionLifeCycleInspector ? 'UX Mode' : 'Developer Mode'}
       </a>
     </>
   );
-}
+};
+
+export default Page;

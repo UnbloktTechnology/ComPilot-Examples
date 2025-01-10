@@ -2,11 +2,44 @@ import os
 import requests
 from dotenv import load_dotenv
 
+"""
+Service for interacting with the ComPilot API.
+Handles transaction submissions and API communication.
+
+Required environment variables:
+- COMPILOT_API_URL: Base URL for the ComPilot API
+- COMPILOT_API_KEY: API key for authentication
+
+Example usage:
+    transaction = {
+        "transactionType": "crypto",
+        "transactionSubType": "wallet transfer",
+        "transactionInfo": {
+            "direction": "IN",
+            "amount": 0.5,
+            "currencyCode": "ETH"
+        }
+    }
+    response = ComPilotService.submit_transaction(transaction)
+"""
+
 load_dotenv()
 
 class ComPilotService:
     @staticmethod
     def submit_transaction(transaction):
+        """
+        Submits a transaction to the ComPilot API for processing.
+        
+        Args:
+            transaction: Dictionary containing transaction details
+            
+        Returns:
+            Dictionary containing the API response
+            
+        Raises:
+            Exception: If API credentials are missing or if the API request fails
+        """
         try:
             response = requests.post(
                 f"{os.getenv('COMPILOT_API_URL')}/transactions",

@@ -1,10 +1,18 @@
 "use client";
 
 import { useState } from 'react';
-import { TransactionModal } from './TransactionModal';
+import UXDemoModal from './uxdemosection/UXDemoModal';
 
+/**
+ * Type definition for different transaction actions available in the UI
+ * Used to control which type of transaction modal to display
+ */
 type TransactionType = 'send' | 'receive' | 'deposit' | 'withdraw';
 
+/**
+ * Mock transaction data for demonstration purposes
+ * In a real application, this would come from an API call
+ */
 const mockTransactions = [
     {
         id: '1',
@@ -44,7 +52,10 @@ const mockTransactions = [
     }
 ];
 
-// Add a mapping function to convert TransactionType to ModalType
+/**
+ * Maps user-facing transaction types to internal modal types
+ * This conversion is necessary to match the backend API expectations
+ */
 const getModalType = (type: TransactionType): 'crypto_in' | 'crypto_out' | 'fiat_in' | 'fiat_out' => {
     switch (type) {
         case 'send': return 'crypto_out';
@@ -54,7 +65,10 @@ const getModalType = (type: TransactionType): 'crypto_in' | 'crypto_out' | 'fiat
     }
 };
 
-// Update the transaction buttons section
+/**
+ * Configuration for quick action buttons
+ * Each button represents a different type of transaction with its associated icon
+ */
 const transactionButtons = [
     { type: 'send', label: 'Send Crypto', icon: '↗️' },
     { type: 'receive', label: 'Receive Crypto', icon: '↙️' },
@@ -62,6 +76,13 @@ const transactionButtons = [
     { type: 'withdraw', label: 'Withdraw Fiat', icon: '💳' }
 ];
 
+/**
+ * Main transaction page component
+ * Provides a user interface for:
+ * - Initiating different types of transactions
+ * - Viewing transaction history
+ * - Managing user balance and account information
+ */
 export default function TransactionPage() {
     const [transactionType, setTransactionType] = useState<TransactionType>('send');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -82,7 +103,7 @@ export default function TransactionPage() {
                             <h1 className="text-xl font-semibold">MOCKMARKET</h1>
                         </div>
                         <div className="flex items-center gap-6">
-                            <span className="text-gray-300">Scott Murazik</span>
+                            <span className="text-gray-300">Scott Murazik </span>
                             <div className="bg-gray-800/50 px-4 py-2 rounded-lg border border-gray-700">
                                 <span className="text-sm text-gray-400">Balance:</span>
                                 <span className="ml-2 font-medium">13 ETH</span>
@@ -156,7 +177,7 @@ export default function TransactionPage() {
                 </div>
             </main>
 
-            <TransactionModal
+            <UXDemoModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 type={getModalType(transactionType)}

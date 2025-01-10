@@ -1,12 +1,13 @@
 import { Transaction } from '@/types/transaction';
 
+const customerId = process.env.NEXT_PUBLIC_CUSTOMER_ID || 'TO_REPLACE_WITH_EXISTING_CUSTOMER_ID';
 
 export const transactionExamples = {
   crypto: {
     in: {
       description: "Crypto IN - ETH",
       data: {
-        customerId: "TO_REPLACE_WITH_EXISTING_CUSTOMER_ID",
+        customerId: customerId,
         externalTransactionId: "f2b1a1d4-afc0-43d1-b868-d31ff825a384",
         transactionDate: "2025-01-08T08:11:22.149Z",
         transactionType: "crypto",
@@ -61,7 +62,7 @@ export const transactionExamples = {
     out: {
       description: "Crypto OUT - MATIC",
       data: {
-        customerId: "TO_REPLACE_WITH_EXISTING_CUSTOMER_ID",
+        customerId: customerId,
         externalTransactionId: "21873154-6a63-40ba-8b67-32722d06695d",
         transactionDate: "2025-01-07T10:01:41.079Z",
         transactionType: "crypto",
@@ -118,7 +119,7 @@ export const transactionExamples = {
     in: {
       description: "Fiat IN - EUR",
       data: {
-        customerId: "TO_REPLACE_WITH_EXISTING_CUSTOMER_ID",
+        customerId: customerId,
         externalTransactionId: "31873154-6a63-40ba-8b67-32722d06695d",
         transactionDate: "2025-01-07T10:01:41.079Z",
         transactionType: "fiat",
@@ -173,7 +174,7 @@ export const transactionExamples = {
     out: {
       description: "Fiat OUT - USD",
       data: {
-        customerId: "TO_REPLACE_WITH_EXISTING_CUSTOMER_ID",
+        customerId: customerId,
         externalTransactionId: "41873154-6a63-40ba-8b67-32722d06695d",
         transactionDate: "2025-01-07T10:01:41.079Z",
         transactionType: "fiat",
