@@ -9,7 +9,7 @@ export const JsonEditorSection = ({ value, onChange, error }: JsonEditorSectionP
     <div className="h-full">
       <div className="h-[42px]">
         <span className="text-green-500 font-mono">POST</span>
-        <span className="text-gray-400 ml-2 font-mono">/transactions</span>
+        <span className="text-gray-400 ml-2 font-mono">/workflows/workflowID/transactions</span>
       </div>
       {error && (
         <div className="text-red-500 text-sm mb-2">{error}</div>

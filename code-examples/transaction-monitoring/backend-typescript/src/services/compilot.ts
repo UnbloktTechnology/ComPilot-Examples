@@ -7,6 +7,7 @@ import { Transaction } from '../types/transaction';
  * Required environment variables:
  * - COMPILOT_API_URL: Base URL for the ComPilot API
  * - COMPILOT_API_KEY: API key for authentication
+ * - COMPILOT_TMS_WORKFLOW_ID: Workflow ID for transaction monitoring
  */
 export class ComPilotService {
     /**
@@ -33,21 +34,29 @@ export class ComPilotService {
     static async submitTransaction(transaction: Transaction) {
         console.log('📝 Environment variables:', {
             apiUrl: process.env.COMPILOT_API_URL,
-            hasApiKey: !!process.env.COMPILOT_API_KEY
+            hasApiKey: !!process.env.COMPILOT_API_KEY,
+            workflowId: process.env.COMPILOT_TMS_WORKFLOW_ID
         });
 
         if (!process.env.COMPILOT_API_URL) {
             throw new Error('COMPILOT_API_URL is not defined');
         }
 
-        const response = await fetch(`${process.env.COMPILOT_API_URL}/transactions`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${process.env.COMPILOT_API_KEY}`
-            },
-            body: JSON.stringify(transaction)
-        });
+        if (!process.env.COMPILOT_TMS_WORKFLOW_ID) {
+            throw new Error('COMPILOT_TMS_WORKFLOW_ID is not defined');
+        }
+
+        const response = await fetch(
+            `${process.env.COMPILOT_API_URL}/workflows/${process.env.COMPILOT_TMS_WORKFLOW_ID}/transactions`, 
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.COMPILOT_API_KEY}`
+                },
+                body: JSON.stringify(transaction)
+            }
+        );
 
         const data = await response.json();
 

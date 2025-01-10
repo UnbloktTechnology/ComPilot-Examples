@@ -9,18 +9,7 @@ Handles transaction submissions and API communication.
 Required environment variables:
 - COMPILOT_API_URL: Base URL for the ComPilot API
 - COMPILOT_API_KEY: API key for authentication
-
-Example usage:
-    transaction = {
-        "transactionType": "crypto",
-        "transactionSubType": "wallet transfer",
-        "transactionInfo": {
-            "direction": "IN",
-            "amount": 0.5,
-            "currencyCode": "ETH"
-        }
-    }
-    response = ComPilotService.submit_transaction(transaction)
+- COMPILOT_TMS_WORKFLOW_ID: Workflow ID for transaction monitoring
 """
 
 load_dotenv()
@@ -41,8 +30,12 @@ class ComPilotService:
             Exception: If API credentials are missing or if the API request fails
         """
         try:
+            workflow_id = os.getenv('COMPILOT_TMS_WORKFLOW_ID')
+            if not workflow_id:
+                raise Exception('COMPILOT_TMS_WORKFLOW_ID is not defined')
+
             response = requests.post(
-                f"{os.getenv('COMPILOT_API_URL')}/transactions",
+                f"{os.getenv('COMPILOT_API_URL')}/workflows/{workflow_id}/transactions",
                 json=transaction,
                 headers={
                     'Content-Type': 'application/json',

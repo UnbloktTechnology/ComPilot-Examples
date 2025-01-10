@@ -20,10 +20,10 @@ export const useTransactionWebSocket = (transactionId?: string, onStatusUpdate?:
       console.log('[WebSocket] Matching transaction ID:', transactionId);
       
       setWebhooks(prev => {
-        // Prevent duplicate webhooks
+        // Prevent duplicate webhooks by comparing timestamps
         const isDuplicate = prev.some(webhook => 
           webhook.body.eventType === webhookData.eventType && 
-          webhook.body.payload.id === webhookData.payload.id
+          webhook.body.payload.updatedAt === webhookData.payload.updatedAt
         );
 
         if (isDuplicate) {
