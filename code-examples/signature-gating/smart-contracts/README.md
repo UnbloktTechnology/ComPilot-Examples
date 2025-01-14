@@ -1,13 +1,60 @@
-# Sample Hardhat Project
+# ComPilot Signature Gating Smart Contracts
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
+Smart contract implementation for ComPilot's signature-based token gating system.
 
-Try running some of the following tasks:
+## Contract Overview
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.js
+The main contract (`GatedToken.sol`) implements:
+- ERC20 token functionality
+- Signature verification for minting by Compilot signature gating system
+- Integration with ComPilot's signer system
+
+## Prerequisites
+
+- Node.js v16 or higher
+- Access to ComPilot dashboard
+- Test MATIC tokens for deployment
+
+## Environment Setup
+
+1. Install dependencies:
+```bash
+npm install
 ```
+
+2. Configure environment:
+```bash
+cp .env.example .env
+```
+
+Required variables:
+- `PRIVATE_KEY`: Deployer wallet private key
+- `NETWORK_RPC_URL`: Network RPC URL (defaults to Polygon Amoy)
+- `SIGNER_MANAGER_ADDRESS`: ComPilot's signer manager address
+
+## Deployment
+
+Deploy to Polygon Amoy testnet:
+```bash
+npx hardhat run scripts/deploy.ts --network polygonAmoy
+```
+
+## Contract Verification
+
+After deployment, verify your contract:
+```bash
+npx hardhat verify --network polygonAmoy <CONTRACT_ADDRESS> <SIGNER_MANAGER_ADDRESS>
+```
+
+## Network Configuration
+
+Default network is Polygon Amoy testnet:
+- RPC URL: https://rpc-amoy.polygon.technology
+- Chain ID: 80002
+- Currency: MATIC
+
+## Security Notes
+
+- All minting operations require valid ComPilot signatures
+- Signatures are single-use and transaction-specific
+- Keep your private keys and API keys secure

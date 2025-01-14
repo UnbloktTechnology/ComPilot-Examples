@@ -112,3 +112,24 @@
   color: #ff4444;
   margin-top: 1rem;
 }
+
+.txStatus {
+  margin-top: 2rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  max-width: 600px;
+  width: 100%;
+}
+
+.statusLine {
+  margin: 0.5rem 0;
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+.mintContainer {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+}
