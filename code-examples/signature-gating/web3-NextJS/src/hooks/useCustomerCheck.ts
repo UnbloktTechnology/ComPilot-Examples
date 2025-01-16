@@ -2,14 +2,10 @@
  * @file useCustomerCheck.ts
  * @description Custom hook for verifying customer KYC status through ComPilot's API
  * 
- * This hook manages customer verification status:
- * 1. Checks if wallet is connected
- * 2. Fetches customer status from ComPilot API
- * 3. Manages loading and error states
- * 4. Updates status when wallet changes
- * 
- * @requires react - For state and effect hooks
- * @requires wagmi - For wallet state management
+ * Simple hook that:
+ * 1. Provides a function to check KYC status from API
+ * 2. Maintains internal status state
+ * 3. Auto-checks when wallet address changes
  */
 
 import { useState, useEffect } from 'react';
@@ -27,7 +23,7 @@ import { useAccount } from 'wagmi';
  * const { status, loading } = useCustomerCheck();
  * if (status === 'Active') { // Customer is verified }
  */
-export function useCustomerCheck() {
+export const useCustomerCheck = () => {
   /**
    * Wallet Hook
    * Gets current connected wallet address
@@ -36,46 +32,43 @@ export function useCustomerCheck() {
 
   /**
    * Local State
-   * Manages customer status and loading state
+   * Manages customer status
    */
   const [status, setStatus] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   /**
    * Status Check Effect
    * Fetches customer status when wallet address changes
    * Handles API calls and error states
    */
-  useEffect(() => {
-    async function checkStatus() {
-      if (!address) return;
-      
-      setLoading(true);
-      try {
-        /**
-         * API Request
-         * Fetches customer status from ComPilot API
-         * Updates local state based on response
-         */
-        const response = await fetch(`/api/customer?address=${address}`);
-        const data = await response.json();
-        
-        if (response.ok) {
-          console.log('Customer data:', data);
-          setStatus(data.status);
-        } else {
-          setStatus(null);
-        }
-      } catch (error) {
-        console.error('Error checking customer:', error);
-        setStatus(null);
-      } finally {
-        setLoading(false);
-      }
+  async function checkStatus() {
+    if (!address) {
+      console.warn('No address available despite being connected!');
+      return null;
     }
+    
 
+    try {
+      const response = await fetch(`/api/customer?address=${address}`);
+      const data = await response.json();
+      
+      if (response.ok) {
+        const newStatus = data.status;
+        setStatus(newStatus);
+        return newStatus;
+      }
+    } catch (error) {
+      console.error('Error in checkStatus:', error);
+    } finally {
+    }
+    console.log('Returning current status:', status);
+    return status;
+  }
+
+  useEffect(() => {
+    console.log('Address changed, checking status...');
     checkStatus();
   }, [address]);
 
-  return { status, loading };
-} 
+  return { checkStatus };
+}; 

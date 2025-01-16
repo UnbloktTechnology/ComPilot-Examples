@@ -2,14 +2,13 @@
  * @file index.tsx
  * @description Main page component implementing gated token minting with KYC verification
  * 
- * This page demonstrates ComPilot's signature gating features:
- * 1. Wallet connection handling
+ * This page demonstrates ComPilot's signature gating features with a complete flow:
+ * 1. Wallet connection handling (via RainbowKit)
  * 2. KYC status verification
- * 3. Dual minting options (API and SDK)
- * 4. Real-time transaction status updates
+ * 3. Token minting with signature gating
  * 
  * @requires @rainbow-me/rainbowkit - For wallet connection UI
- * @requires @compilot/react-sdk - For KYC widget integration
+ * @requires @compilot/react-sdk - For authentication and KYC integration
  * @requires wagmi - For wallet state management
  */
 
@@ -22,20 +21,25 @@ import { useAccount } from 'wagmi';
 import { useCustomerCheck } from '../hooks/useCustomerCheck';
 import { MintButton } from "../components/MintButton";
 import { MintButtonSDK } from "../components/MintButtonSDK";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * Home Page Component
- * Manages the main application flow and UI states
+ * Manages the complete authentication and minting flow
  * 
  * Features:
  * - Wallet connection state management
  * - KYC verification flow
- * - Token minting options (API/SDK)
- * - Transaction status tracking
+ * - Token minting with gating
+ * 
+ * Flow:
+ * 1. User connects wallet (ConnectButton)
+ * 2. If KYC needed, completes verification
+ * 3. Access to minting functionality
  * 
  * States:
  * @state {boolean} isConnected - Wallet connection status
+ * @state {boolean} isAuthenticated - Wallet signature status
  * @state {string} status - KYC verification status
  * @state {boolean} statusLoading - KYC status loading state
  * @state {string[]} txStatus - Transaction status messages
@@ -49,22 +53,40 @@ const Home: NextPage = () => {
    * - txStatus: Tracks transaction progress
    */
   const openWidget = useOpenWidget();
-  const { isConnected } = useAccount();
-  const { status, loading: statusLoading } = useCustomerCheck();
+  const { isConnected, address } = useAccount();
+  const { checkStatus } = useCustomerCheck();
+  const [needsKYC, setNeedsKYC] = useState(true);
   const [txStatus, setTxStatus] = useState<string[]>([]);
 
   /**
    * Derived States
-   * - needsKYC: Determines if KYC verification is required
    * - isLoading: Tracks overall loading state
    */
-  const needsKYC = status !== 'Active';
-  const isLoading = statusLoading;
+  const isLoading = openWidget.isPending;
+
+  // Combine les deux effets
+  useEffect(() => {
+    // Initial check
+    if (address) {
+      checkStatus().then(status => setNeedsKYC(status !== 'Active'));
+    }
+
+    // Widget close handler
+    const handleMessage = async (event: MessageEvent) => {
+      if (event.data?.type === 'closeScreen' && address) {
+        const status = await checkStatus();
+        setNeedsKYC(status !== 'Active');
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [address]);
 
   return (
     <div className={styles.container}>
       <Head>
-        <title>ComPilot Next.Js Web3</title>
+        <title>ComPilot Signature Gating Example</title>
         <meta content="ComPilot Example" name="description" />
       </Head>
 
@@ -83,15 +105,12 @@ const Home: NextPage = () => {
               <button
                 id="compilot-button"
                 disabled={openWidget.isPending}
-                onClick={() => openWidget.openWidget()}
+                onClick={openWidget.openWidget}
                 className={styles.claimButton}
               >
-                Complete KYC
+                {openWidget.isPending ? "Processing..." : "Complete KYC"}
               </button>
             ) : (
-              /* Minting Options
-                 Shows both API and SDK minting buttons
-                 Displays transaction status updates */
               <>
                 <div className={styles.mintContainer}>
                   <MintButton onStatusUpdate={(status) => setTxStatus(prev => [...prev, status])} />

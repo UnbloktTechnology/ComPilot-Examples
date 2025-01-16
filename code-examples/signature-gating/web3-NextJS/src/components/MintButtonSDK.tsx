@@ -21,6 +21,7 @@ import { EvmChainId } from "@compilot/react-sdk";
 import { useMutation } from "@tanstack/react-query";
 import { GatedTokenABI } from "../abis/GatedTokenABI";
 import styles from "../styles/Home.module.css";
+import { useAuthenticate } from "@compilot/react-sdk";
 
 /**
  * Contract address is expected to be a valid Ethereum address
@@ -68,6 +69,7 @@ export function MintButtonSDK({ onStatusUpdate }: MintButtonSDKProps) {
   const { data: walletClient } = useWalletClient();
   const chainId = useChainId();
   const publicClient = usePublicClient();
+  const { authenticate } = useAuthenticate();
 
   /**
    * Mutation hook handling the minting process through SDK
@@ -113,6 +115,7 @@ export function MintButtonSDK({ onStatusUpdate }: MintButtonSDKProps) {
          * @returns {Promise<SignatureResponse>} - SDK response with signature
          */
         onStatusUpdate("📝 Requesting signature via SDK...");
+        await authenticate();
         const signatureResponse = await getTxAuthDataSignature(txAuthInput);
         onStatusUpdate("✅ Got signature from SDK");
 
