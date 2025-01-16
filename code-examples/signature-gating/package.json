@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@nexeraid/sig-gating-contracts": "^3.0.0"
+  }
+}
