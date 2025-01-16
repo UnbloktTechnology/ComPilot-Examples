@@ -74,6 +74,6 @@ npm run dev
 
 ## Learn More
 
-- [ComPilot Documentation](https://docs.compilot.dev)
-- [SDK Documentation](https://docs.compilot.dev/sdk)
-- [API Reference](https://docs.compilot.dev/reference)
+- [ComPilot Documentation](https://docs.compilot.ai)
+- [API Reference](https://docs.compilot.ai/apis)
+- [SDK Documentation](https://docs.compilot.ai/developing/sdk/)

@@ -112,7 +112,7 @@ Provides real-time transaction status updates to connected clients.
 ## Documentation
 
 - [ComPilot Documentation](https://docs.compilot.ai)
-- [API Reference](https://docs.compilot.ai/developing/api/)
+- [API Reference](https://docs.compilot.ai/apis/)
 
 ## Related
 

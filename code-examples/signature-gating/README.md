@@ -56,6 +56,6 @@ cd signature-gating
 ## Learn More
 
 For detailed information about ComPilot's features and integration:
-- [ComPilot Documentation](https://docs.compilot.dev)
-- [API Reference](https://docs.compilot.dev/reference)
-- [SDK Documentation](https://docs.compilot.dev/sdk)
+- [ComPilot Documentation](https://docs.compilot.ai)
+- [API Reference](https://docs.compilot.ai/apis)
+- [SDK Documentation](https://docs.compilot.ai/developing/sdk/)

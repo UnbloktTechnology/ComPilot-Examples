@@ -87,7 +87,7 @@ src/
 ## Documentation
 
 - [ComPilot Documentation](https://docs.compilot.ai)
-- [API Reference](https://docs.compilot.ai/developing/api/)
+- [API Reference](https://docs.compilot.ai/apis/)
 
 ## Related
 
