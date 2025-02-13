@@ -13,7 +13,7 @@ interface ComPilotButtonProps {
   setActiveConfig: (config: any) => void;
 }
 
-export const ComPilotButton = ({ config, hasWallet, setActiveConfig }: ComPilotButtonProps) => {
+const ComPilotButton = ({ config, hasWallet, setActiveConfig }: ComPilotButtonProps) => {
   const openWidget = useOpenWidget();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -47,3 +47,4 @@ export const ComPilotButton = ({ config, hasWallet, setActiveConfig }: ComPilotB
   );
 };
 
+export default ComPilotButton;
