@@ -3,7 +3,6 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import { ComPilotProvider } from "@compilot/react-sdk";
-import { ComPilotButton } from "./components/ComPilotButton";
 import { 
   compilotConfigWalletKYC, 
   compilotConfigWalletKYB,
@@ -13,6 +12,7 @@ import {
 import Image from "next/image";
 import { useState } from "react";
 import { useAccount } from "wagmi";
+import ComPilotButton from "./components/ComPilotButton";
 
 type UserType = "individual" | "company" | null;
 type WalletStatus = "has-wallet" | "no-wallet" | null;
@@ -72,7 +72,7 @@ const Home: NextPage<{ setActiveConfig: (config: any) => void }> = ({ setActiveC
                 checked={walletStatus === "no-wallet"}
                 onChange={(e) => setWalletStatus(e.target.value as WalletStatus)}
               />
-              I don't have a wallet
+              I don&#39;t have a wallet
             </label>
           </div>
         </div>
