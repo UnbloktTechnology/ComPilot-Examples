@@ -106,7 +106,18 @@
 }
 
 .questionGroup {
-  text-align: left;
+  margin-bottom: 2rem;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease;
+}
+
+.hidden {
+  opacity: 0;
+  visibility: hidden;
+  height: 0;
+  margin: 0;
+  overflow: hidden;
 }
 
 .questionGroup h3 {
@@ -117,7 +128,8 @@
 
 .radioGroup {
   display: flex;
-  gap: 2rem;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .radioGroup label {

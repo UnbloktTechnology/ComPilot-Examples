@@ -50,33 +50,31 @@ const Home: NextPage<{ setActiveConfig: (config: any) => void }> = ({ setActiveC
         </div>
       </div>
 
-      {userType && (
-        <div className={styles.questionGroup}>
-          <h3>Do you have a Web3 wallet?</h3>
-          <div className={styles.radioGroup}>
-            <label>
-              <input
-                type="radio"
-                name="walletStatus"
-                value="has-wallet"
-                checked={walletStatus === "has-wallet"}
-                onChange={(e) => setWalletStatus(e.target.value as WalletStatus)}
-              />
-              I have a wallet
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="walletStatus"
-                value="no-wallet"
-                checked={walletStatus === "no-wallet"}
-                onChange={(e) => setWalletStatus(e.target.value as WalletStatus)}
-              />
-              I don&#39;t have a wallet
-            </label>
-          </div>
+      <div className={`${styles.questionGroup} ${!userType ? styles.hidden : ''}`}>
+        <h3>Do you have a Web3 wallet?</h3>
+        <div className={styles.radioGroup}>
+          <label>
+            <input
+              type="radio"
+              name="walletStatus"
+              value="has-wallet"
+              checked={walletStatus === "has-wallet"}
+              onChange={(e) => setWalletStatus(e.target.value as WalletStatus)}
+            />
+            I have a wallet
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="walletStatus"
+              value="no-wallet"
+              checked={walletStatus === "no-wallet"}
+              onChange={(e) => setWalletStatus(e.target.value as WalletStatus)}
+            />
+            I don&#39;t have a wallet
+          </label>
         </div>
-      )}
+      </div>
     </div>
   );
 
