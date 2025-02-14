@@ -12,7 +12,7 @@ import {
 import Image from "next/image";
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import ComPilotButton from "./components/ComPilotButton";
+import ComPilotButton from "../components/ComPilotButton";
 
 type UserType = "individual" | "company" | null;
 type WalletStatus = "has-wallet" | "no-wallet" | null;

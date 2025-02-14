@@ -5,7 +5,7 @@ import {
   compilotConfigWalletKYB,
   compilotConfigRegularKYC,
   compilotConfigRegularKYB 
-} from "../_app";
+} from "../pages/_app";
 
 interface ComPilotButtonProps {
   config: 'KYC' | 'KYB';
@@ -18,6 +18,8 @@ const ComPilotButton = ({ config, hasWallet, setActiveConfig }: ComPilotButtonPr
   const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = async () => {
+    if (!config) return; // Protection contre config undefined
+
     try {
       setIsLoading(true);
       
@@ -35,6 +37,9 @@ const ComPilotButton = ({ config, hasWallet, setActiveConfig }: ComPilotButtonPr
       setIsLoading(false);
     }
   };
+
+  // Protection contre config undefined dans le rendu
+  if (!config) return null;
 
   return (
     <button
