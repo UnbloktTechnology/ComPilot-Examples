@@ -50,31 +50,33 @@ const Home: NextPage<{ setActiveConfig: (config: any) => void }> = ({ setActiveC
         </div>
       </div>
 
-      <div className={`${styles.questionGroup} ${!userType ? styles.hidden : ''}`}>
-        <h3>Do you have a Web3 wallet?</h3>
-        <div className={styles.radioGroup}>
-          <label>
-            <input
-              type="radio"
-              name="walletStatus"
-              value="has-wallet"
-              checked={walletStatus === "has-wallet"}
-              onChange={(e) => setWalletStatus(e.target.value as WalletStatus)}
-            />
-            I have a wallet
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="walletStatus"
-              value="no-wallet"
-              checked={walletStatus === "no-wallet"}
-              onChange={(e) => setWalletStatus(e.target.value as WalletStatus)}
-            />
-            I don&#39;t have a wallet
-          </label>
+      {userType && (
+        <div className={styles.questionGroup}>
+          <h3>Do you have a Web3 wallet?</h3>
+          <div className={styles.radioGroup}>
+            <label>
+              <input
+                type="radio"
+                name="walletStatus"
+                value="has-wallet"
+                checked={walletStatus === "has-wallet"}
+                onChange={(e) => setWalletStatus(e.target.value as WalletStatus)}
+              />
+              I have a wallet
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="walletStatus"
+                value="no-wallet"
+                checked={walletStatus === "no-wallet"}
+                onChange={(e) => setWalletStatus(e.target.value as WalletStatus)}
+              />
+              I don&#39;t have a wallet
+            </label>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 
@@ -110,22 +112,22 @@ const Home: NextPage<{ setActiveConfig: (config: any) => void }> = ({ setActiveC
 
   return (
     <div className={styles.container}>
-      <header className="header">
-        <Image
-          src="/images/psalion.png"
-          alt="Psalion Logo"
-          width={120}
-          height={40}
-          className="logo"
-          priority
-        />
-      </header>
       <Head>
         <title>Psalion Landing Page</title>
         <meta content="ComPilot Example" name="description" />
       </Head>
 
       <main className={styles.main}>
+        <div className={styles.imageContainer}>
+          <Image
+            src="/images/psalion.jpg"
+            alt="Psalion Logo"
+            width={320}
+            height={120}
+            className={styles.heroImage}
+            priority
+          />
+        </div>
         {renderQuestions()}
         {renderAction()}
       </main>
