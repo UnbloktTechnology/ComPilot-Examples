@@ -42,7 +42,7 @@ This example demonstrates how to implement customer screening using ComPilot's A
 
 ### Backend (TypeScript)
 - Built with Express.js
-- Uses native WebSocket
+- Uses WebSocket
 - Located in `/backend-typescript`
 
 ## Data Flow

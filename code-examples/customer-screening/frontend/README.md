@@ -11,7 +11,7 @@ This example demonstrates how to build a customer screening interface using Next
 
 ## Prerequisites
 
-- Access to ComPilot dashboard with an API key
+- Access to ComPilot dashboard
 - A customer screening workflow set up in your workspace
 - Node.js and npm/yarn installed
 - Backend server running
