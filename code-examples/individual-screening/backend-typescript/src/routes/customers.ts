@@ -9,6 +9,8 @@ import { CustomerController } from '../controllers/customers';
  * - POST /: Submit a new customer for screening
  *   - Request body should contain customer details
  *   - Returns screening response from ComPilot API
+ * - GET /:customerId/wallets: Get wallet details for a customer
+ * - GET /:customerId/details: Get customer details
  * 
  * Note: These routes are mounted at /api/customers in index.ts
  * So the full path would be /api/customers/
@@ -16,5 +18,7 @@ import { CustomerController } from '../controllers/customers';
 const router = Router();
 
 router.post('/', CustomerController.submitCustomer);
+router.get('/:customerId/wallets', CustomerController.getWalletDetails);
+router.get('/:customerId/details', CustomerController.getCustomerDetails);
 
 export const customerRoutes = router;

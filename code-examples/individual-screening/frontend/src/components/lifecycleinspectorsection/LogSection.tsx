@@ -5,9 +5,11 @@ interface LogSectionProps {
   children?: React.ReactNode;
   defaultOpen?: boolean;
   logs?: CustomerLog[];
+  onGetWalletDetails?: () => void;
+  customerDetails?: any;
 }
 
-export const LogSection = ({ title = "Webhooks", children, logs }: LogSectionProps) => {
+export const LogSection = ({ title = "Webhooks", children, logs, onGetWalletDetails, customerDetails }: LogSectionProps) => {
   if (logs) {
     return logs.length > 0 ? (
       <div className="mt-4 p-4 bg-[#1E2025] rounded-lg w-full">
@@ -31,6 +33,22 @@ export const LogSection = ({ title = "Webhooks", children, logs }: LogSectionPro
             </div>
           ))}
         </div>
+        {logs.length > 0 && !customerDetails && (
+          <button
+            onClick={onGetWalletDetails}
+            className="mt-4 w-full px-3 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+          >
+            Get Customer Details
+          </button>
+        )}
+        {customerDetails && (
+          <div className="mt-4 bg-[#2C2F36] p-3 rounded">
+            <h3 className="text-sm font-semibold mb-2">Customer Details</h3>
+            <pre className="text-xs overflow-x-auto">
+              {JSON.stringify(customerDetails, null, 2)}
+            </pre>
+          </div>
+        )}
       </div>
     ) : null;
   }

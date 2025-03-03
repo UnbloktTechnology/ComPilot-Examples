@@ -1,8 +1,8 @@
-# ComPilot Customer Screening Example
+# ComPilot Individual Screening Example
 
-This example demonstrates how to implement customer screening using ComPilot's API. It includes:
+This example demonstrates how to implement Individual screening using ComPilot's API. It includes:
 
-- Real-time customer status updates via WebSocket
+- Real-time Individual status updates via WebSocket
 - Webhook handling with signature verification
 - Frontend visualization of screening status
 - Example implementation in TypeScript
@@ -35,7 +35,7 @@ This example demonstrates how to implement customer screening using ComPilot's A
 ## Components
 
 ### Frontend (Next.js)
-- Provides the developer interface for testing customer screening
+- Provides the developer interface for testing individual screening
 - Displays real-time status updates via WebSocket
 - Shows detailed webhook logs
 - Located in `/frontend`
@@ -47,8 +47,8 @@ This example demonstrates how to implement customer screening using ComPilot's A
 
 ## Data Flow
 
-1. **Customer Submission**
-   - Frontend sends customer data to backend (`POST /workflows/{workflowID}/customers`)
+1. **Individual Submission**
+   - Frontend sends individual data to backend (`POST /workflows/{workflowID}/customers`)
    - Backend forwards request to ComPilot API
    - ComPilot returns 200 OK
    - Frontend displays initial status
@@ -63,7 +63,7 @@ This example demonstrates how to implement customer screening using ComPilot's A
 1. **ComPilot Account**
    - API Key
    - Webhook Secret
-   - Customer Screening workflow
+   - Individual Screening workflow
    - CMS Project ID
 
 2. **Development Tools**

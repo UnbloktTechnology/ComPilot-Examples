@@ -43,4 +43,34 @@ export class CustomerController {
             }
         }
     }
+
+    static async getWalletDetails(req: Request, res: Response) {
+        try {
+            const { customerId } = req.params;
+            const response = await ComPilotService.getCustomerWallets(customerId);
+            res.json(response);
+        } catch (error) {
+            console.error('❌ Get wallet details error:', error);
+            if (error instanceof Error) {
+                res.status(400).json({ error: error.message });
+            } else {
+                res.status(500).json({ error: 'Internal server error' });
+            }
+        }
+    }
+
+    static async getCustomerDetails(req: Request, res: Response) {
+        try {
+            const { customerId } = req.params;
+            const response = await ComPilotService.getCustomerDetails(customerId);
+            res.json(response);
+        } catch (error) {
+            console.error('❌ Get customer details error:', error);
+            if (error instanceof Error) {
+                res.status(400).json({ error: error.message });
+            } else {
+                res.status(500).json({ error: 'Internal server error' });
+            }
+        }
+    }
 } 

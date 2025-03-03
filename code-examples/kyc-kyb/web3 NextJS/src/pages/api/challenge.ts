@@ -3,7 +3,7 @@ import { createSdk } from "@compilot/js-sdk";
 
 const apiClient = createSdk({
   webhookSecret: process.env.WEBHOOK_SECRET!,
-  apiKey: process.env.COMPILOT_API_KEY_NEXTJS_WEB3!,
+  apiKey: process.env.API_KEY!,
 });
 
 export default async function handler(

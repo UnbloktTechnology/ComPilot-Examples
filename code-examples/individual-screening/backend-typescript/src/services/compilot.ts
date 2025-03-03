@@ -11,9 +11,9 @@ import { Customer, CustomerResponse } from '../types/customer';
  */
 export class ComPilotService {
     /**
-     * Submits a customer screening request to the ComPilot API.
+     * Submits a individual screening request to the ComPilot API.
      * 
-     * @param customer - The customer details to submit for screening
+     * @param customer - The individual details to submit for screening
      * @throws Error if API credentials are missing or if the API request fails
      * @returns The API response data
      */
@@ -62,5 +62,49 @@ export class ComPilotService {
         }
 
         return data as CustomerResponse;
+    }
+
+    static async getCustomerWallets(customerId: string) {
+        if (!process.env.COMPILOT_API_URL) {
+            throw new Error('COMPILOT_API_URL is not defined');
+        }
+
+        const url = `${process.env.COMPILOT_API_URL}/customers/${customerId}/wallets`;
+        
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${process.env.COMPILOT_API_KEY}`
+            }
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(`ComPilot API Error: ${JSON.stringify(data, null, 2)}`);
+        }
+
+        return data;
+    }
+
+    static async getCustomerDetails(customerId: string) {
+        if (!process.env.COMPILOT_API_URL) {
+            throw new Error('COMPILOT_API_URL is not defined');
+        }
+
+        const url = `${process.env.COMPILOT_API_URL}/customers/${customerId}/details`;
+        
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${process.env.COMPILOT_API_KEY}`
+            }
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(`ComPilot API Error: ${JSON.stringify(data, null, 2)}`);
+        }
+
+        return data;
     }
 } 

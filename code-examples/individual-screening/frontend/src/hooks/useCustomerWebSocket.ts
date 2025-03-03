@@ -6,10 +6,13 @@ export interface CustomerLog {
   id: string;
   status: 'active' | 'failed' | 'rejected' | 'under_review';
   timestamp: string;
-  details?: {
-    reason?: string;
-    reviewerId?: string;
-    reviewNotes?: string;
+  details: {
+    eventType: string;
+    payload: {
+      customerId: string;
+      externalCustomerId: string;
+      status: string;
+    }
   };
 }
 

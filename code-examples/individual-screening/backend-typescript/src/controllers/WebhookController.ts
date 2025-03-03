@@ -78,10 +78,11 @@ export class WebhookController {
      */
     handleWebhook = (req: Request, res: Response): void => {
         try {
-            console.log('📥 Webhook received:', {
-                type: req.body.type,
-                payload: req.body.payload,
-                headers: req.headers
+            console.log('📦 WEBHOOK RECEIVED:', {
+                eventType: req.body.eventType,
+                customerId: req.body.payload.customerId,
+                externalCustomerId: req.body.payload.externalCustomerId,
+                status: req.body.payload.status
             });
             
             if (!this.verifySignature(req.body, req.headers)) {

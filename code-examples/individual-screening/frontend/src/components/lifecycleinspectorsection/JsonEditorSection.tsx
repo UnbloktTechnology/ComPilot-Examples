@@ -5,8 +5,8 @@ interface JsonEditorSectionProps {
 }
 
 export const JsonEditorSection = ({ value, onChange, error }: JsonEditorSectionProps) => (
-  <div className="h-[600px]">
-    <div className="h-full">
+  <div>
+    <div>
       <div className="h-[42px]">
         <span className="text-green-500 font-mono">POST</span>
         <span className="text-gray-400 ml-2 font-mono">/workflows/workflowID/customers</span>

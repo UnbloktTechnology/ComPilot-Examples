@@ -16,6 +16,7 @@ const CustomerScreeningInspector = () => {
   const [externalId, setExternalId] = useState<string | undefined>(undefined);
   const { makeApiCall } = useCustomerApi();
   const { logs } = useCustomerWebSocket(externalId);
+  const [customerDetails, setCustomerDetails] = useState<any>(null);
 
   const handleExampleSelect = (category: string, type: string) => {
     if (category === 'nationality') {
@@ -37,55 +38,67 @@ const CustomerScreeningInspector = () => {
   };
 
   const handleJsonChange = (value: string) => {
-    try {
-      JSON.parse(value);
-      setJsonError(null);
-      setSelectedCustomer(value);
-    } catch {
-      setJsonError('Invalid JSON');
-    }
+    setSelectedCustomer(value);
   };
 
   const handleSubmit = async () => {
     try {
+      JSON.parse(selectedCustomer);
+      
       const response = await makeApiCall(selectedCustomer);
       setApiResponse(response);
       const customerData = JSON.parse(selectedCustomer);
       setExternalId(customerData.customerData[0].externalId);
+      setJsonError(null);
     } catch (error) {
       console.error('Error:', error);
+      setJsonError('Invalid JSON format');
+    }
+  };
+
+  const handleGetCustomerDetails = async () => {
+    try {
+      const lastLog = logs[logs.length - 1];
+      if (!lastLog?.details?.payload?.customerId) {
+        console.error('No customer ID available in webhook');
+        return;
+      }
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/customers/${lastLog.details.payload.customerId}/details`);
+      const data = await response.json();
+      setCustomerDetails(data);
+    } catch (error) {
+      console.error('Error getting customer details:', error);
     }
   };
 
   return (
     <div className="px-[10vw] py-4">
-      <h1 className="text-xl font-bold mb-4"> Customer Screening Workflow</h1>
-      
-      <div className="grid grid-cols-[1fr,1.618fr] gap-6 mb-6">
-        <div className="flex flex-col min-h-[600px] overflow-y-auto">
+      <h1 className="text-xl font-bold mb-4">Customer Screening Workflow</h1>
+      <div className="grid grid-cols-[1fr,1.618fr] gap-6 mb-4">
+        <div className="flex flex-col min-h-[500px] overflow-y-auto">
           <div className="flex-none">
             <CustomerTypeSelectorSection onSelect={handleExampleSelect} />
           </div>
-          
           <button
             onClick={handleSubmit}
-            disabled={!!jsonError}
             className="w-1/2 mx-auto px-3 py-3 my-3 text-sm bg-blue-600 text-white rounded disabled:opacity-50 flex-none"
           >
             Submit Customer
           </button>
-
-          <div className="flex-1 overflow-y-auto">
-            {apiResponse && <StatusDisplaySection response={apiResponse} />}
-            {externalId && <LogSection logs={logs} />}
-          </div>
         </div>
-
         <JsonEditorSection 
           value={selectedCustomer}
           onChange={handleJsonChange}
           error={jsonError}
         />
+      </div>
+      <div className="overflow-y-auto">
+        {apiResponse && <StatusDisplaySection response={apiResponse} />}
+        {externalId && <LogSection 
+          logs={logs} 
+          onGetWalletDetails={handleGetCustomerDetails}
+          customerDetails={customerDetails}
+        />}
       </div>
     </div>
   );
