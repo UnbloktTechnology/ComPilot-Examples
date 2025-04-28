@@ -92,7 +92,7 @@ export const getCardano = (): Cardano | undefined => {
 
 export const getWallet = async () => {
   const cardano = getCardano()!;
-  const api = await cardano.nami!.enable();
+  const api = await cardano.lace!.enable();
 
   const usedAddresses = await api.getUsedAddresses();
 
