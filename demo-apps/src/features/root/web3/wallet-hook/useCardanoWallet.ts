@@ -1,21 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-
 import { CardanoSignature } from "@nexeraid/identity-schemas";
-
-export const formatCardanoAddress = async (rawByteString: string) => {
-  // Convert hexadecimal string to Uint8Array
-  const bytes = new Uint8Array(
-    rawByteString.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16)),
-  );
-  const { Address } = await import("@emurgo/cardano-serialization-lib-browser");
-  // Create Address object
-  const address = Address.from_bytes(bytes);
-
-  // Convert Address to Bech32 string
-  const bech32Address = address.to_bech32();
-  console.log("Bech32 Address:", bech32Address);
-  return bech32Address;
-};
+import { useQuery } from "@tanstack/react-query";
 
 export type Cardano = Record<
   string,
@@ -31,56 +15,27 @@ export type Cardano = Record<
 
 export interface WalletApi {
   getNetworkId: () => Promise<number>;
-  getUtxos: () => Promise<string[] | undefined>;
-  getBalance: () => Promise<string>;
-  getUsedAddresses: () => Promise<string[]>;
-  getUnusedAddresses: () => Promise<string[]>;
   getChangeAddress: () => Promise<string>;
-  getRewardAddresses: () => Promise<string[]>;
-  signTx: (tx: string, partialSign: boolean) => Promise<string>;
   signData: (
     address: string,
     payload: string,
   ) => Promise<{ signature: string; key: string }>;
-  submitTx: (tx: string) => Promise<string>;
-  getCollateral: () => Promise<string[]>;
-  //   experimental: {
-  //     getCollateral: () => Promise<string[]>;
-  //     on: (eventName: string, callback: Function) => void;
-  //     off: (eventName: string, callback: Function) => void;
-  //   };
 }
 
 export const signWithCardanoAndGetKey = async (
-  message: string,
-  wallet: WalletApi | undefined,
+  messageUtf: string,
+  wallet: WalletApi,
 ) => {
-  if (!wallet) {
-    throw new Error("signWithCardano called before wallet was connected");
+  const [stakeAddrHex, stakeAddrBech32] = await getStakeAddress(wallet);
+  if (!stakeAddrHex || !stakeAddrBech32) {
+    throw new Error("Error getting stake address");
   }
-  const usedAddresses = await wallet.getUsedAddresses();
-
-  const userAddress = usedAddresses[0];
-  const formatedAddress =
-    userAddress && (await formatCardanoAddress(userAddress));
-
-  if (!formatedAddress) {
-    throw new Error("No user connected in wallet");
-  }
-  const hexMessage = Buffer.from(message).toString("hex");
-  const { signature, key } = await wallet.signData(userAddress, hexMessage);
-  return { signature: CardanoSignature.parse(signature), signerPublicKey: key };
-};
-
-/**
- * @deprecated: use signWithCardanoAndGetKey instead
- */
-export const signWithCardano = async (
-  message: string,
-  wallet: WalletApi | undefined,
-) => {
-  const { signature } = await signWithCardanoAndGetKey(message, wallet);
-  return signature;
+  const messageHex = Buffer.from(messageUtf).toString("hex");
+  const sigData = await wallet.signData(stakeAddrHex, messageHex);
+  return {
+    signature: CardanoSignature.parse(sigData.signature),
+    signerPublicKey: sigData.key,
+  };
 };
 
 const isBrowser = () => typeof window !== "undefined";
@@ -90,17 +45,42 @@ export const getCardano = (): Cardano | undefined => {
   return cardano;
 };
 
+async function getStakeAddress(wallet: WalletApi) {
+  let csl;
+  try {
+    csl = await import("@emurgo/cardano-serialization-lib-browser");
+  } catch (error) {
+    console.error("Error importing csl", error);
+  }
+  if (!csl) {
+    throw new Error("Error importing csl");
+  }
+  const networkId = await wallet.getNetworkId();
+  const changeAddrHex = await wallet.getChangeAddress();
+
+  // derive the stake address from the change address to be sure we are getting
+  // the stake address of the currently active account.
+  const changeAddress = csl.Address.from_bytes(
+    new Uint8Array(Buffer.from(changeAddrHex, "hex")),
+  );
+  const stakeCredential =
+    csl.BaseAddress.from_address(changeAddress)?.stake_cred();
+  if (!stakeCredential) {
+    throw new Error("Error getting stake credential");
+  }
+  const stakeAddress = csl.RewardAddress.new(
+    networkId,
+    stakeCredential,
+  ).to_address();
+
+  return [stakeAddress.to_hex(), stakeAddress.to_bech32()];
+}
+
 export const getWallet = async () => {
   const cardano = getCardano()!;
-  const api = await cardano.lace!.enable();
-
-  const usedAddresses = await api.getUsedAddresses();
-
-  const userAddress = usedAddresses[0];
-  const formatedAddress =
-    userAddress && (await formatCardanoAddress(userAddress));
-  console.log("signature: userAddress", userAddress);
-  return { wallet: api, userAddress: formatedAddress };
+  const wallet = await cardano.yoroi!.enable();
+  const [_stakeAddrHex, stakeAddrBech32] = await getStakeAddress(wallet);
+  return { wallet: wallet, userAddress: stakeAddrBech32 };
 };
 
 export const useCardanoWallet = () => {
