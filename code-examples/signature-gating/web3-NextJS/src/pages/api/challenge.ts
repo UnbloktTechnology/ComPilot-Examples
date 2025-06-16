@@ -13,6 +13,7 @@
  * @requires process.env.API_KEY - ComPilot API key for authentication
  * @requires process.env.WEBHOOK_SECRET - Secret for webhook verification - optional if webhook is not used
  * @requires process.env.WORKFLOW_KYC_ID - KYC workflow identifier
+ * @requires process.env.WORKFLOW_GATING_ID - Signature gating workflow identifier
  */
 
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -35,7 +36,7 @@ const apiClient = createSdk({
  * @param res - Used to send API response
  * 
  * Endpoint: POST /api/challenge
- * Request Body: { address: string, ... } + additional workflow parameters
+ * Request Body: { address: string, workflowType: 'kyc' | 'signatureGating', ... } + additional workflow parameters
  * Response: { message: string, sessionId: string } | { error: string }
  */
 export default async function handler(
@@ -50,13 +51,28 @@ export default async function handler(
 
   try {
     /**
+     * Extract workflow type and remove it from body
+     * Determines which workflow ID to use based on type
+     */
+    const { workflowType, ...restBody } = req.body;
+    
+    /**
+     * Select appropriate workflow ID based on type
+     * - 'kyc': Uses KYC workflow for identity verification
+     * - 'signatureGating': Uses signature gating workflow for transaction authorization
+     */
+    const workflowId = workflowType === 'signatureGating' 
+      ? process.env.WORKFLOW_GATING_ID
+      : process.env.WORKFLOW_KYC_ID;
+
+    /**
      * Challenge Creation
      * Uses SDK to create a challenge for wallet verification
-     * Includes workflow ID for KYC process
+     * Includes appropriate workflow ID based on type
      */
     const sessionRes = await apiClient.createWeb3Challenge({
-      workflowId: process.env.WORKFLOW_KYC_ID,
-      ...req.body,
+      workflowId,
+      ...restBody,
     });
     res.status(200).json(sessionRes);
 
