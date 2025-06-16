@@ -19,25 +19,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { config } from "../wagmi";
-import { createWagmiWalletAdapter } from "@compilot/web-sdk-wallet-wagmi";
-import { ComPilotProvider, createWeb3AuthAdapter, createConfig } from "@compilot/react-sdk";
-import { generateChallenge } from "../compilot-config";
+import { KYCComPilotProvider, SignatureGatingComPilotProvider } from "../providers/ComPilotProviders";
 
 /**
- * Wallet and Auth Configuration
- * Sets up ComPilot authentication with Wagmi wallet adapter
+ * Query Client Configuration
+ * Initializes React Query for data management
  */
-const walletAdapter = createWagmiWalletAdapter(config);
-const authAdapter = createWeb3AuthAdapter({
-  generateChallenge,
-  wallet: walletAdapter,
-});
-
-/**
- * ComPilot and Query Configuration
- * Initializes providers with required configuration
- */
-const compilotConfig = createConfig({ authAdapter });
 const client = new QueryClient();
 
 /**
@@ -46,7 +33,11 @@ const client = new QueryClient();
  * 1. WagmiProvider (outermost)
  * 2. QueryClientProvider
  * 3. RainbowKitProvider
- * 4. ComPilotProvider (innermost)
+ * 4. KYCComPilotProvider (for KYC functionality)
+ * 5. SignatureGatingComPilotProvider (for signature gating)
+ * 
+ * Note: Both ComPilot providers are used to handle different workflow IDs
+ * for KYC and signature gating functionality separately
  * 
  * @param {AppProps} props - Next.js app props
  */
@@ -55,9 +46,11 @@ function MyApp({ Component, pageProps }: AppProps) {
     <WagmiProvider config={config}>
       <QueryClientProvider client={client}>
         <RainbowKitProvider>
-          <ComPilotProvider config={compilotConfig}>
-            <Component {...pageProps} />
-          </ComPilotProvider>
+          <KYCComPilotProvider>
+            <SignatureGatingComPilotProvider>
+              <Component {...pageProps} />
+            </SignatureGatingComPilotProvider>
+          </KYCComPilotProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
