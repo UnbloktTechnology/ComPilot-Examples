@@ -2,7 +2,8 @@
   "name": "api-interactions",
   "version": "1.0.0",
   "scripts": {
-    "add-sig-gating-workflow": "ts-node ./workflows/add-sig-gating-workflow.ts"
+    "add-workflow": "ts-node ./workflows/add-sig-gating-workflow.ts",
+    "update-workflow": "ts-node ./workflows/update-sig-gating-workflow.ts"
   },
   "dependencies": {
     "dotenv": "^16.0.0",
