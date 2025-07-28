@@ -2,6 +2,7 @@ import fetch from "node-fetch";
 import dotenv from "dotenv";
 import path from "path";
 import { API_BASES } from "../apiBases";
+import { NEXERA_EVM_CHAINS } from "@nexeraid/identity-schemas";
 
 // Load environment variables from .env file at project root
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
@@ -22,31 +23,19 @@ const CONTRACT_ADDRESS =
 const CHAIN_ID = process.env.CHAIN_ID || "1"; // Ethereum mainnet
 
 // Custom contract data for blockchain-api
-const customContractData = {
+const createContractData = {
+  blockchainNamespace: "eip155",
   contractAddress: CONTRACT_ADDRESS,
-  chainId: CHAIN_ID,
-  contractType: "ERC20", // or "ERC721", "ERC1155", etc.
-  name: "My Custom Token",
-  symbol: "MCT",
-  decimals: 18,
+  contractName: "Original Contract",
+  chainIds: [NEXERA_EVM_CHAINS.ETHEREUM],
 };
 
 // Custom scenario data for scenarios-api
-const customScenarioData = {
-  name: "Custom Balance Check",
-  description: "Check if user has minimum balance of custom token",
-  type: "balance_check",
-  parameters: {
-    minBalance: "1000000000000000000", // 1 token in wei
-    operator: "gte", // greater than or equal
-  },
-  conditions: [
-    {
-      field: "balance",
-      operator: "gte",
-      value: "1000000000000000000",
-    },
-  ],
+const createScenarioData = {
+  name: "Test Scenario",
+  description: "A test scenario for API testing",
+  type: "BlockchainPolicies" as const,
+  entityType: "individual" as const,
 };
 
 async function addCustomContract(workflowId: string) {
@@ -58,7 +47,7 @@ async function addCustomContract(workflowId: string) {
 
   console.log(`Adding custom contract to workflow ${workflowId}...`);
   console.log(`URL: ${url}`);
-  console.log(`Contract data:`, customContractData);
+  console.log(`Contract data:`, createContractData);
 
   try {
     const response = await fetch(url, {
@@ -67,7 +56,7 @@ async function addCustomContract(workflowId: string) {
         "Content-Type": "application/json",
         "X-API-Key": API_KEY,
       },
-      body: JSON.stringify(customContractData),
+      body: JSON.stringify(createContractData),
     });
 
     if (!response.ok) {
@@ -78,9 +67,62 @@ async function addCustomContract(workflowId: string) {
     const data = await response.json();
     console.log("✅ Custom contract added successfully:");
     console.log(JSON.stringify(data, null, 2));
+
+    // Update the allowed contract's chain IDs
+    if (data.allowedContractId) {
+      await updateAllowedContractChainIds(data.allowedContractId);
+    }
+
     return data;
   } catch (error) {
     console.error("❌ Error adding custom contract:", error);
+    throw error;
+  }
+}
+
+async function updateAllowedContractChainIds(allowedContractId: string) {
+  if (!API_KEY) {
+    console.error("API_KEY is not set in environment variables.");
+    process.exit(1);
+  }
+
+  const updateData = {
+    chainIds: [
+      NEXERA_EVM_CHAINS.ETHEREUM,
+      NEXERA_EVM_CHAINS.ARBITRUM,
+      NEXERA_EVM_CHAINS.POLYGON,
+    ],
+  };
+
+  const url = `${API_BASE}/workflows-engine/sig-gating/blockchain-api/allowed-contracts/${allowedContractId}/contract-chain-ids/batch`;
+
+  console.log(
+    `\nUpdating allowed contract chain IDs for ${allowedContractId}...`
+  );
+  console.log(`URL: ${url}`);
+  console.log(`Update data:`, updateData);
+
+  try {
+    const response = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": API_KEY,
+      },
+      body: JSON.stringify(updateData),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log("✅ Allowed contract chain IDs updated successfully:");
+    console.log(JSON.stringify(data, null, 2));
+    return data;
+  } catch (error) {
+    console.error("❌ Error updating allowed contract chain IDs:", error);
     throw error;
   }
 }
@@ -94,7 +136,7 @@ async function addCustomScenario(workflowId: string) {
 
   console.log(`\nAdding custom scenario to workflow ${workflowId}...`);
   console.log(`URL: ${url}`);
-  console.log(`Scenario data:`, customScenarioData);
+  console.log(`Scenario data:`, createScenarioData);
 
   try {
     const response = await fetch(url, {
@@ -103,7 +145,7 @@ async function addCustomScenario(workflowId: string) {
         "Content-Type": "application/json",
         "X-API-Key": API_KEY,
       },
-      body: JSON.stringify(customScenarioData),
+      body: JSON.stringify(createScenarioData),
     });
 
     if (!response.ok) {
@@ -181,7 +223,7 @@ async function main() {
     console.log(
       `- Added custom contract: ${CONTRACT_ADDRESS} on chain ${CHAIN_ID}`
     );
-    console.log(`- Added custom scenario: ${customScenarioData.name}`);
+    console.log(`- Added custom scenario: ${createScenarioData.name}`);
     console.log(`- Workflow ID: ${WORKFLOW_ID}`);
   } catch (error) {
     console.error("\n💥 Workflow update failed:", error);

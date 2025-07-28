@@ -6,6 +6,7 @@
     "update-workflow": "ts-node ./workflows/update-sig-gating-workflow.ts"
   },
   "dependencies": {
+    "@nexeraid/identity-schemas": "^2.190.0",
     "dotenv": "^16.0.0",
     "node-fetch": "^2.6.7"
   },
