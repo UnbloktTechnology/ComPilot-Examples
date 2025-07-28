@@ -43,7 +43,7 @@ async function addCustomContract(workflowId: string) {
     console.error("API_KEY is not set in environment variables.");
     process.exit(1);
   }
-  const url = `${API_BASE}/workflows-engine/sig-gating/${workflowId}/blockchain-api`;
+  const url = `${API_BASE}/blockchain-api/allowed-contracts/${workflowId}/`;
 
   console.log(`Adding custom contract to workflow ${workflowId}...`);
   console.log(`URL: ${url}`);
@@ -94,7 +94,7 @@ async function updateAllowedContractChainIds(allowedContractId: string) {
     ],
   };
 
-  const url = `${API_BASE}/workflows-engine/sig-gating/blockchain-api/allowed-contracts/${allowedContractId}/contract-chain-ids/batch`;
+  const url = `${API_BASE}/blockchain-api/allowed-contracts/${allowedContractId}/contract-chain-ids/batch`;
 
   console.log(
     `\nUpdating allowed contract chain IDs for ${allowedContractId}...`
@@ -132,7 +132,7 @@ async function addCustomScenario(workflowId: string) {
     console.error("API_KEY is not set in environment variables.");
     process.exit(1);
   }
-  const url = `${API_BASE}/workflows-engine/sig-gating/${workflowId}/scenarios-api`;
+  const url = `${API_BASE}/rules-engine/scenarios/`;
 
   console.log(`\nAdding custom scenario to workflow ${workflowId}...`);
   console.log(`URL: ${url}`);
@@ -152,6 +152,9 @@ async function addCustomScenario(workflowId: string) {
       const errorText = await response.text();
       throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
+
+    // TODO: associate the scenario to the workflow
+    // The endpoint needs to be added to the public scenarios-api
 
     const data = await response.json();
     console.log("✅ Custom scenario added successfully:");
