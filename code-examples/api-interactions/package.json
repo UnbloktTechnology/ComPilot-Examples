@@ -1,0 +1,20 @@
+{
+  "name": "api-interactions",
+  "version": "1.0.0",
+  "scripts": {
+    "add-workflow": "ts-node ./workflows/add-sig-gating-workflow.ts",
+    "update-workflow": "ts-node ./workflows/update-sig-gating-workflow.ts"
+  },
+  "dependencies": {
+    "@nexeraid/identity-schemas": "^2.190.0",
+    "dotenv": "^16.0.0",
+    "node-fetch": "^2.6.7",
+    "viem": "^2.33.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.2",
+    "@types/node-fetch": "^2.6.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
+  }
+}
