@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import path from "path";
 import { API_BASES } from "../apiBases";
 import { NEXERA_EVM_CHAINS } from "@nexeraid/identity-schemas";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 
 // Load environment variables from .env file at project root
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
@@ -16,10 +17,14 @@ if (!API_KEY) {
   process.exit(1);
 }
 
+export const generateEvmAccount = () => {
+  return privateKeyToAccount(generatePrivateKey());
+};
+
 // Configuration - Update these values as needed
 const WORKFLOW_ID = process.env.WORKFLOW_ID || "your-workflow-id-here";
 const CONTRACT_ADDRESS =
-  process.env.CONTRACT_ADDRESS || "0x1234567890123456789012345678901234567890";
+  process.env.CONTRACT_ADDRESS || generateEvmAccount().address;
 const CHAIN_ID = process.env.CHAIN_ID || "1"; // Ethereum mainnet
 
 // Custom contract data for blockchain-api
@@ -38,14 +43,14 @@ const createScenarioData = {
   entityType: "individual" as const,
 };
 
-async function addCustomContract(workflowId: string) {
+async function addCustomContract() {
   if (!API_KEY) {
     console.error("API_KEY is not set in environment variables.");
     process.exit(1);
   }
-  const url = `${API_BASE}/blockchain-api/allowed-contracts/${workflowId}/`;
+  const url = `${API_BASE}/blockchain-api/allowed-contracts`;
 
-  console.log(`Adding custom contract to workflow ${workflowId}...`);
+  console.log(`Adding custom contract...`);
   console.log(`URL: ${url}`);
   console.log(`Contract data:`, createContractData);
 
@@ -72,6 +77,8 @@ async function addCustomContract(workflowId: string) {
     if (data.allowedContractId) {
       await updateAllowedContractChainIds(data.allowedContractId);
     }
+
+    // TODO: later on there will be an endpoint to add the contract to the workflow
 
     return data;
   } catch (error) {
@@ -127,14 +134,14 @@ async function updateAllowedContractChainIds(allowedContractId: string) {
   }
 }
 
-async function addCustomScenario(workflowId: string) {
+async function addCustomScenario() {
   if (!API_KEY) {
     console.error("API_KEY is not set in environment variables.");
     process.exit(1);
   }
-  const url = `${API_BASE}/rules-engine/scenarios/`;
+  const url = `${API_BASE}/rules-engine/scenarios`;
 
-  console.log(`\nAdding custom scenario to workflow ${workflowId}...`);
+  console.log(`\nAdding custom scenario`);
   console.log(`URL: ${url}`);
   console.log(`Scenario data:`, createScenarioData);
 
@@ -212,10 +219,10 @@ async function main() {
     await getWorkflowDetails(WORKFLOW_ID);
 
     // Add custom contract
-    await addCustomContract(WORKFLOW_ID);
+    await addCustomContract();
 
     // Add custom scenario
-    await addCustomScenario(WORKFLOW_ID);
+    await addCustomScenario();
 
     // Get updated workflow details
     console.log("\n" + "=".repeat(60));
