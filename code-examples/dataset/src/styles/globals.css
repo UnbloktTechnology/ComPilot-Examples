@@ -1,0 +1,18 @@
+body {
+  font-family: system-ui, sans-serif;
+  background: #f8fafc;
+  margin: 0;
+  padding: 0;
+}
+pre {
+  background: #f1f5f9;
+  border-radius: 6px;
+  padding: 1em;
+  overflow-x: auto;
+}
+button {
+  cursor: pointer;
+}
+input, textarea {
+  font-family: inherit;
+} 
